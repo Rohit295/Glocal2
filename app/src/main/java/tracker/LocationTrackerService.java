@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.*;
 import android.os.Process;
+import android.util.Log;
 
 /**
  *
@@ -41,6 +42,14 @@ public class LocationTrackerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(this.getClass().getName(), "Start Command: startid="+startId);
+
+        // For each start request, send a message to start a job and deliver the
+        // start ID so we know which request we're stopping when we finish the job
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        mServiceHandler.sendMessage(msg);
+
         return START_STICKY;
     }
 

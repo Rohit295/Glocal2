@@ -1,5 +1,6 @@
 package tracker;
 
+import android.app.Service;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,18 +13,18 @@ import android.util.Log;
 public class LocationTrackerServiceHandler extends Handler {
     public final int STOP_PROCESSING = 1407;
 
-    private Context mLocationTrackingContext;
+    private Service mLocationTrackingService;
 
-    public LocationTrackerServiceHandler(Context locationTrackingContext, Looper looper) {
+    public LocationTrackerServiceHandler(Service locationTrackingService, Looper looper) {
         super(looper);
-        this.mLocationTrackingContext = locationTrackingContext;
+        this.mLocationTrackingService = locationTrackingService;
     }
 
     @Override
     public void handleMessage(Message msg) {
 
         // create a LocationTracker and start getting the location updates
-        LocationTracker mLocationTracker = new LocationTracker(mLocationTrackingContext);
+        LocationTracker mLocationTracker = new LocationTracker(mLocationTrackingService);
 
         // Allow the Location Tracker to get location updates till the stipulated end OR till the
         // service wants it stopped
@@ -31,10 +32,10 @@ public class LocationTrackerServiceHandler extends Handler {
             synchronized (this) {
                 try {
                     if (hasMessages(STOP_PROCESSING)) {
-                        mLocationTracker = null;
+                        mLocationTracker = null; // which will cause the Location Tracking to stop
                         break;
                     }
-                    wait(5000);
+                    wait(2000);
                 } catch (InterruptedException ie) {
                     Log.e(this.getClass().getName(), ie.getMessage());
                     throw new RuntimeException(ie);
@@ -43,5 +44,6 @@ public class LocationTrackerServiceHandler extends Handler {
         }
 
         // time to stop the service.
+        mLocationTrackingService.stopSelf(msg.arg1);
     }
 }
