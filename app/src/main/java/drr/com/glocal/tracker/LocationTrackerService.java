@@ -11,18 +11,8 @@ import android.util.Log;
  */
 public class LocationTrackerService extends Service {
 
-    private Looper mServiceLooper;
     private LocationTrackerServiceHandler mServiceHandler;
-
-    public LocationTrackerService() {
-        super();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+    private Messenger mServiceMessenger;
 
     @Override
     public void onCreate() {
@@ -36,8 +26,15 @@ public class LocationTrackerService extends Service {
         thread.start();
 
         // Get the HandlerThread's Looper and use it for our Handler
-        mServiceLooper = thread.getLooper();
-        mServiceHandler = new LocationTrackerServiceHandler(this, mServiceLooper);    }
+        mServiceHandler = new LocationTrackerServiceHandler(this);
+        mServiceMessenger = new Messenger(mServiceHandler);
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.i(this.getClass().getName(), "OnBind invocation");
+        return mServiceMessenger.getBinder();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -50,17 +47,6 @@ public class LocationTrackerService extends Service {
         mServiceHandler.sendMessage(msg);
 
         return START_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // For each start request, send a message to start a job and deliver the
-        // start ID so we know which request we're stopping when we finish the job
-        Message msg = mServiceHandler.obtainMessage();
-        msg.arg1 = LocationTrackerServiceHandler.STOP_PROCESSING;
-        mServiceHandler.sendMessage(msg);
     }
 }
 

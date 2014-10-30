@@ -3,8 +3,15 @@ package drr.com.glocal.tracker;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,9 +69,43 @@ public class Tracker extends Activity {
     public static class TrackerFragment extends Fragment implements View.OnClickListener {
 
         private final float INITIAL_ZOOM_LEVEL = 15f;
-        private MapView mMapView;
 
-        public TrackerFragment() {
+        // create a Service Connection to send messages to the Service. The Messenger extracted here
+        // is the Client Side handle that will allow this activity to control the Service
+        private Messenger mLocationTrackerServiceMessenger;
+        private ServiceConnection mServiceConnection =
+                new ServiceConnection() {
+                    @Override
+                    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                        Log.i(this.getClass().getName(), "ServiceConnection Connected");
+                        mLocationTrackerServiceMessenger = new Messenger(iBinder);
+                    }
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName componentName) {
+                        Log.i(this.getClass().getName(), "ServiceConnection DisConnected");
+                        mLocationTrackerServiceMessenger = null;
+                    }
+                };
+
+        @Override
+        public void onStart() {
+            super.onStart();
+
+            Log.i(this.getClass().getName(), "OnStart called, about to Bind");
+            getActivity().bindService(new Intent(getActivity(), LocationTrackerService.class),
+                                            mServiceConnection, BIND_AUTO_CREATE);
+            Log.i(this.getClass().getName(), "OnStart finished, Binding Initiated");
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+
+            Log.i(this.getClass().getName(), "OnStop Called, about to UnBind");
+            if (mLocationTrackerServiceMessenger != null)
+                getActivity().unbindService(mServiceConnection);
+            Log.i(this.getClass().getName(), "OnStop finished, UnBind finished");
         }
 
         @Override
@@ -92,14 +133,33 @@ public class Tracker extends Activity {
             return rootView;
         }
 
+        /**
+         * Button Click Handlers: Handle the Start and Stop Buttons
+         * @param view
+         */
         @Override
         public void onClick(View view) {
+
+            // Bind to the Location Tracking Service
+
             // If the user has pressed the Start Button
             Intent locationTrackingIntent = new Intent(getActivity(), LocationTrackerService.class);
             if (view.getId() == R.id.btn_start_tracking) {
-                getActivity().startService(locationTrackingIntent);
+                Message startTracking = Message.obtain(null, LocationTrackerServiceHandler.START_TRACKING_LOCATION);
+                try {
+                    mLocationTrackerServiceMessenger.send(startTracking);
+                } catch(RemoteException re) {
+                    Log.e(this.getClass().getName() + ":Error @ start of Tracking", re.getMessage());
+                    throw new RuntimeException(re);
+                }
             } else if (view.getId() == R.id.btn_stop_tracking) {
-                getActivity().stopService(locationTrackingIntent);
+                Message stopTracking = Message.obtain(null, LocationTrackerServiceHandler.STOP_TRACKING_LOCATION);
+                try {
+                    mLocationTrackerServiceMessenger.send(stopTracking);
+                } catch(RemoteException re) {
+                    Log.e(this.getClass().getName() + ":Error @ stop Tracking", re.getMessage());
+                    throw new RuntimeException(re);
+                }
             }
         }
     }

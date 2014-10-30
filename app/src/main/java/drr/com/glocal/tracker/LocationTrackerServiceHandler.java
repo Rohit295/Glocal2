@@ -10,39 +10,31 @@ import android.util.Log;
  * Created by rohitman on 10/29/2014.
  */
 public class LocationTrackerServiceHandler extends Handler {
-    public static final int STOP_PROCESSING = 1407;
+    public static final int START_TRACKING_LOCATION = 0707;
+    public static final int STOP_TRACKING_LOCATION = 1407;
 
     private Service mLocationTrackingService;
+    private LocationTracker mLocationTracker;
 
-    public LocationTrackerServiceHandler(Service locationTrackingService, Looper looper) {
-        super(looper);
+    public LocationTrackerServiceHandler(Service locationTrackingService) {
+        super();
         this.mLocationTrackingService = locationTrackingService;
     }
 
     @Override
     public void handleMessage(Message msg) {
+        // Either Create a new LocationTracker and start tracking or simply destroy it
+        switch(msg.what) {
+            case START_TRACKING_LOCATION:
+                if (mLocationTracker == null)
+                    mLocationTracker = new LocationTracker(mLocationTrackingService);
+                mLocationTracker.startTrackingLocation();
+                break;
 
-        // create a LocationTracker and start getting the location updates
-        LocationTracker mLocationTracker = new LocationTracker(mLocationTrackingService);
-
-        // Allow the Location Tracker to get location updates till the stipulated end OR till the
-        // service wants it stopped
-        while(true) {
-            synchronized (this) {
-                try {
-                    if (hasMessages(STOP_PROCESSING)) {
-                        mLocationTracker = null; // which will cause the Location Tracking to stop
-                        break;
-                    }
-                    wait(2000);
-                } catch (InterruptedException ie) {
-                    Log.e(this.getClass().getName(), ie.getMessage());
-                    throw new RuntimeException(ie);
-                }
-            }
+            case STOP_TRACKING_LOCATION:
+                mLocationTracker.stopTrackingLocation();
+                mLocationTracker = null;
+                break;
         }
-
-        // time to stop the service.
-        mLocationTrackingService.stopSelf(msg.arg1);
     }
 }

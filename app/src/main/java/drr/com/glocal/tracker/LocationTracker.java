@@ -25,20 +25,36 @@ public class LocationTracker implements
         GoogleMap.OnCameraChangeListener,
         com.google.android.gms.location.LocationListener {
 
-    private Context locationTrackingContext;
+    private Context mLocationTrackingContext;
     private LocationClient mLocationClient;
     private final float INITIAL_ZOOM_LEVEL = 15f;
 
     private List<LatLng> routeToTraverse;
 
-    private boolean locationConnectionInitializationDone = false;
+    private boolean mLocationConnectionInitializationDone = false;
 
     public LocationTracker(Context locationTrackingContext) {
         Log.i(this.getClass().getName(), "LocationTracker Created");
-        //TODO check that Google play services is available to the client
+        mLocationTrackingContext = locationTrackingContext;
 
-        mLocationClient = new LocationClient(locationTrackingContext, this, this);
+        //TODO check that Google play services is available to the client
+    }
+
+    public void startTrackingLocation() {
+        Log.i(this.getClass().getName(), ": about to start tracking location");
+        mLocationClient = new LocationClient(mLocationTrackingContext, this, this);
         mLocationClient.connect();
+    }
+
+    public void stopTrackingLocation() {
+        Log.i(this.getClass().getName(), ": about to stop tracking location");
+
+        if (mLocationClient != null) {
+            if (mLocationClient.isConnected()) {
+                mLocationClient.removeLocationUpdates(this);
+            }
+            mLocationClient.disconnect();
+        }
     }
 
     @Override
@@ -46,8 +62,8 @@ public class LocationTracker implements
         Log.i(this.getClass().getName(), "Connection Made");
 
         // Rest of this section is required only when Connection is Initialized for first time
-        if (!locationConnectionInitializationDone) {
-            locationConnectionInitializationDone = true;
+        if (!mLocationConnectionInitializationDone) {
+            mLocationConnectionInitializationDone = true;
         } else {
             return;
         }
