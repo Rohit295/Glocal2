@@ -18,10 +18,15 @@
         </activity>
 
         <service
-            android:name="tracker.LocationTrackerService"
+            android:name=".tracker.LocationTrackerService"
             android:enabled="true"
             android:exported="true" >
         </service>
+
+        <activity
+            android:name=".tracker.Tracker"
+            android:label="@string/title_activity_tracker" >
+        </activity>
     </application>
 
 </manifest>

@@ -1,21 +1,17 @@
-package tracker;
+package drr.com.glocal.tracker;
 
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +57,7 @@ public class LocationTracker implements
         Log.i(this.getClass().getName(), "Initial Position - Latitude: " + mLocation.getLatitude() + "; Longitude: " +
                 mLocation.getLongitude() + "; Altitude: " + mLocation.getAltitude());
 
-        // Enable this tracker to keep getting location updates
+        // Enable this drr.com.glocal.tracker to keep getting location updates
         // TODO: currently hard coded to high accuracy. How to handle coarse location updates?
         LocationRequest request = new LocationRequest();
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
