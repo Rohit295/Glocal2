@@ -8,16 +8,24 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="drr.com.glocal.tracker.Tracker.TrackerFragment">
 
-    <com.google.android.gms.maps.MapView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="450dp"
-        android:id="@+id/map_view"
+        android:orientation="horizontal"
+        android:id="@+id/f_cont_map_view">
+        <!--
+        <com.google.android.gms.maps.MapView
+            android:layout_width="wrap_content"
+            android:layout_height="450dp"
+            android:id="@+id/f_map_view"
         />
+        -->
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/map_view"
+        android:layout_below="@id/f_cont_map_view"
         android:id="@+id/buttons_layout"
         android:orientation="horizontal"
         >
@@ -29,7 +37,8 @@
             android:id="@+id/btn_start_tracking"
             android:text="Start"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"/>
+            android:textColor="#FFFFFF"
+            android:background="@drawable/f_button_background"/>
 
         <Button
             android:layout_width="130dp"
@@ -38,7 +47,8 @@
             android:id="@+id/btn_stop_tracking"
             android:text="Stop"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"/>
+            android:textColor="#FFFFFF"
+            android:background="@drawable/f_button_background"/>
 
     </RelativeLayout>
 </RelativeLayout>
