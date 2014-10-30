@@ -10,7 +10,7 @@ import android.util.Log;
  * Created by rohitman on 10/29/2014.
  */
 public class LocationTrackerServiceHandler extends Handler {
-    public final int STOP_PROCESSING = 1407;
+    public static final int STOP_PROCESSING = 1407;
 
     private Service mLocationTrackingService;
 

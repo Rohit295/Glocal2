@@ -2,6 +2,7 @@ package drr.com.glocal.tracker;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -60,6 +62,7 @@ public class Tracker extends Activity {
     public static class TrackerFragment extends Fragment implements View.OnClickListener {
 
         private final float INITIAL_ZOOM_LEVEL = 15f;
+        private MapView mMapView;
 
         public TrackerFragment() {
         }
@@ -69,16 +72,16 @@ public class Tracker extends Activity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_tracker2, container, false);
 
-            // Initialize our lovely Google Map View & give it its initial settings
+            // Initialize our lovely Google Map View & give it its initial settings. Logic is to
+            // initialize a MapFragment and add it to our container layout
             GoogleMapOptions mapOptions = new GoogleMapOptions();
             CameraPosition cp = CameraPosition.builder().target(new LatLng(17.4321496, 78.3612867)).
                     zoom(INITIAL_ZOOM_LEVEL).build();
             mapOptions.camera(cp).mapType(GoogleMap.MAP_TYPE_NORMAL);
+            MapFragment mapFragment = MapFragment.newInstance(mapOptions);
 
-            LinearLayout mapViewContainer = (LinearLayout)rootView.findViewById(R.id.f_cont_map_view);
-            MapView mapView = new MapView(getActivity(), mapOptions);
-            mapView.onCreate(savedInstanceState);
-            mapViewContainer.addView(mapView);
+            LinearLayout mapViewContainer = (LinearLayout)rootView.findViewById(R.id.f_cont_map_fragment);
+            getFragmentManager().beginTransaction().add(mapViewContainer.getId(), mapFragment).commit();
 
             // Add a Button listener to start & stop location tracking
             Button startButton = (Button) rootView.findViewById(R.id.btn_start_tracking);

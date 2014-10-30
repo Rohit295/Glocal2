@@ -55,6 +55,12 @@ public class LocationTrackerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        // For each start request, send a message to start a job and deliver the
+        // start ID so we know which request we're stopping when we finish the job
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = LocationTrackerServiceHandler.STOP_PROCESSING;
+        mServiceHandler.sendMessage(msg);
     }
 }
 
