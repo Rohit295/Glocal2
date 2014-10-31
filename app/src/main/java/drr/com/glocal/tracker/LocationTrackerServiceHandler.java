@@ -32,8 +32,10 @@ public class LocationTrackerServiceHandler extends Handler {
                 break;
 
             case STOP_TRACKING_LOCATION:
-                mLocationTracker.stopTrackingLocation();
-                mLocationTracker = null;
+                if (mLocationTracker != null) {
+                    mLocationTracker.stopTrackingLocation();
+                    mLocationTracker = null;
+                }
                 break;
         }
     }
