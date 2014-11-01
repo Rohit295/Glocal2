@@ -23,11 +23,12 @@ public class LocationTrackerServiceHandler extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
+
         // Either Create a new LocationTracker and start tracking or simply destroy it
         switch(msg.what) {
             case START_TRACKING_LOCATION:
                 if (mLocationTracker == null)
-                    mLocationTracker = new LocationTracker(mLocationTrackingService);
+                    mLocationTracker = new LocationTracker(mLocationTrackingService, msg.replyTo);
                 mLocationTracker.startTrackingLocation();
                 break;
 

@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -88,6 +89,7 @@ public class Tracker extends Activity {
                     }
                 };
 
+
         @Override
         public void onStart() {
             super.onStart();
@@ -108,6 +110,10 @@ public class Tracker extends Activity {
             Log.i(this.getClass().getName(), "OnStop finished, UnBind finished");
         }
 
+        // create a client side Messenger to receive messages from the Service
+        private Messenger mLocationUpdatesMessenger;
+        private final String MAP_FRAGMENT_ID = "Interim_Map_Fragment";
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
@@ -122,7 +128,8 @@ public class Tracker extends Activity {
             MapFragment mapFragment = MapFragment.newInstance(mapOptions);
 
             LinearLayout mapViewContainer = (LinearLayout)rootView.findViewById(R.id.f_cont_map_fragment);
-            getFragmentManager().beginTransaction().add(mapViewContainer.getId(), mapFragment).commit();
+            getFragmentManager().beginTransaction().add(mapViewContainer.getId(), mapFragment,
+                    MAP_FRAGMENT_ID).commit();
 
             // Add a Button listener to start & stop location tracking
             Button startButton = (Button) rootView.findViewById(R.id.btn_start_tracking);
@@ -140,12 +147,16 @@ public class Tracker extends Activity {
         @Override
         public void onClick(View view) {
 
-            // Bind to the Location Tracking Service
+            // At this point create the incoming message Handler and set it up with the Map it is going
+            // to manipulate
+            MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentByTag(MAP_FRAGMENT_ID);
+            mLocationUpdatesMessenger = new Messenger(new TrackerHandler(mapFragment.getMap()));
 
             // If the user has pressed the Start Button
             Intent locationTrackingIntent = new Intent(getActivity(), LocationTrackerService.class);
             if (view.getId() == R.id.btn_start_tracking) {
                 Message startTracking = Message.obtain(null, LocationTrackerServiceHandler.START_TRACKING_LOCATION);
+                startTracking.replyTo = mLocationUpdatesMessenger;
                 try {
                     mLocationTrackerServiceMessenger.send(startTracking);
                 } catch(RemoteException re) {
@@ -154,6 +165,7 @@ public class Tracker extends Activity {
                 }
             } else if (view.getId() == R.id.btn_stop_tracking) {
                 Message stopTracking = Message.obtain(null, LocationTrackerServiceHandler.STOP_TRACKING_LOCATION);
+                stopTracking.replyTo = mLocationUpdatesMessenger;
                 try {
                     mLocationTrackerServiceMessenger.send(stopTracking);
                 } catch(RemoteException re) {

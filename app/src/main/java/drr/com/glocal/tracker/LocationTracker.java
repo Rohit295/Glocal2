@@ -3,6 +3,9 @@ package drr.com.glocal.tracker;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -26,20 +29,32 @@ public class LocationTracker implements
         com.google.android.gms.location.LocationListener {
 
     private Context mLocationTrackingContext;
+    private Messenger mLocationUpdatesMessenger;
+
     private LocationClient mLocationClient;
+
     private final float INITIAL_ZOOM_LEVEL = 15f;
+
+    // created some constants to handle the Message 'whats'
+    public static final int LOCATION_UPDATE = 106;
 
     private List<LatLng> routeToTraverse;
 
     private boolean mLocationConnectionInitializationDone = false;
 
-    public LocationTracker(Context locationTrackingContext) {
+    /**
+     *
+     * @param locationTrackingContext
+     */
+    public LocationTracker(Context locationTrackingContext, Messenger locationUpdatesMessenger) {
         Log.i(this.getClass().getName(), "LocationTracker Created");
         mLocationTrackingContext = locationTrackingContext;
+        mLocationUpdatesMessenger = locationUpdatesMessenger;
 
         //TODO check that Google play services is available to the client
     }
 
+    // TODO - Tracking needs to be done inside a Thread to ensure that this does not block the main UI
     public void startTrackingLocation() {
         Log.i(this.getClass().getName(), ": about to start tracking location");
         mLocationClient = new LocationClient(mLocationTrackingContext, this, this);
@@ -57,6 +72,10 @@ public class LocationTracker implements
         }
     }
 
+    /**
+     * Called as soon as Tracker is able to connect to the Location Management client
+     * @param bundle
+     */
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(this.getClass().getName(), "Connection Made");
@@ -87,6 +106,7 @@ public class LocationTracker implements
         Log.i(this.getClass().getName(), "Connection Made");
     }
 
+    private int tempCounter = 0;
     private List<LatLng> pointsOnPathTaken = new ArrayList<LatLng>(5);
 
     @Override
@@ -95,8 +115,19 @@ public class LocationTracker implements
                 location.getLongitude() + "; Altitude: " + location.getAltitude());
 
         // TODO- test code to simulate movement. check that this is commented out
-        //LatLng locationToAdd = new LatLng(location.getLatitude() + (double)(5*tempCounter)/10000,
-        //                            location.getLongitude() + (double)(5*tempCounter++)/10000);
+        location.setLatitude(location.getLatitude() + (double)(5*tempCounter)/10000);
+        location.setLongitude(location.getLongitude() + (double)(5*tempCounter++)/10000);
+
+        // send the location back to the client
+        try {
+            Message messageToSend = Message.obtain(null, LocationTracker.LOCATION_UPDATE, 0, 0);
+            messageToSend.obj = location;
+            mLocationUpdatesMessenger.send(messageToSend);
+        } catch (RemoteException re) {
+            Log.e(this.getClass().getName(), re.getMessage());
+            throw new RuntimeException(re);
+        }
+
         LatLng locationToAdd = new LatLng(location.getLatitude(), location.getLongitude());
         pointsOnPathTaken.add(locationToAdd);
     }
