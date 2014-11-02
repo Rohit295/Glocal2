@@ -1,5 +1,6 @@
 package com.drr.glocal.services.persistence;
 
+import com.drr.glocal.services.model.TrackLocationInfo;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -75,4 +76,18 @@ public class TrackLocation {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
+
+    public TrackLocationInfo getInfo() {
+
+        TrackLocationInfo info = new TrackLocationInfo();
+        info.setId(getId());
+        info.setDeviceId(getDeviceId());
+        info.setTimestamp(getTimestamp());
+        info.setLatitude(getLatitude());
+        info.setLongitude(getLongitude());
+
+        return info;
+
+    }
+
 }

@@ -7,7 +7,7 @@ public class TrackLocationInfo {
 
     private Long id;
 
-    private DeviceInfo device;
+    private Long deviceId;
 
     private Long timestamp;
 
@@ -27,12 +27,12 @@ public class TrackLocationInfo {
         this.id = id;
     }
 
-    public DeviceInfo getDevice() {
-        return device;
+    public Long getDeviceId() {
+        return deviceId;
     }
 
-    public void setDevice(DeviceInfo device) {
-        this.device = device;
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = this.deviceId;
     }
 
     public Long getTimestamp() {

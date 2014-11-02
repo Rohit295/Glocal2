@@ -11,8 +11,6 @@ public class TrackInfo {
 
     private String name;
 
-    private UserInfo user;
-
     private List<TrackLocationInfo> trackLocations;
 
     public TrackInfo() {
@@ -33,14 +31,6 @@ public class TrackInfo {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public UserInfo getUser() {
-        return user;
-    }
-
-    public void setUser(UserInfo user) {
-        this.user = user;
     }
 
     public List<TrackLocationInfo> getTrackLocations() {

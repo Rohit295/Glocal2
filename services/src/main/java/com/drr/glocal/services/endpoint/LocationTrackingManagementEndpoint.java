@@ -1,6 +1,7 @@
 package com.drr.glocal.services.endpoint;
 
 import com.drr.glocal.services.GcmMessageSender;
+import com.drr.glocal.services.model.TrackLocationInfo;
 import com.drr.glocal.services.persistence.TrackLocation;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
@@ -59,15 +60,19 @@ public class LocationTrackingManagementEndpoint {
     }
 
     @ApiMethod(name = "getTrackLocations", path = "users/{userId}/tracks/{trackId}/locations", httpMethod = ApiMethod.HttpMethod.GET)
-    public List<TrackLocation> getTrackLocations(@Named("userId") Long userId,
-                                                 @Named("trackId") Long trackId) {
+    public List<TrackLocationInfo> getTrackLocations(@Named("userId") Long userId, @Named("trackId") Long trackId) {
 
         List<TrackLocation> records = ofy().load().type(TrackLocation.class).filter("trackId", trackId).list();
         if (records == null || records.isEmpty()) {
-            return new ArrayList<TrackLocation>();
+            return new ArrayList<TrackLocationInfo>();
         }
 
-        return records;
+        List<TrackLocationInfo> infos = new ArrayList<TrackLocationInfo>();
+        for (TrackLocation location : records) {
+            infos.add(location.getInfo());
+        }
+
+        return infos;
 
     }
 

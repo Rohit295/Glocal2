@@ -1,14 +1,13 @@
 package com.drr.glocal.services.endpoint;
 
 import com.drr.glocal.services.model.TrackInfo;
-import com.drr.glocal.services.model.TrackLocationInfo;
-import com.drr.glocal.services.model.UserInfo;
 import com.drr.glocal.services.persistence.Track;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Named;
@@ -23,7 +22,7 @@ public class TrackManagementEndpoint {
 
     private static final Logger log = Logger.getLogger(TrackManagementEndpoint.class.getName());
 
-    @ApiMethod(path = "users/{userId}/tracks", httpMethod = ApiMethod.HttpMethod.POST)
+    @ApiMethod(name = "createNewTrack", path = "users/{userId}/tracks", httpMethod = ApiMethod.HttpMethod.POST)
     public TrackInfo createNewTrack(@Named("userId") Long userId, @Named("name") String name) {
 
         Track track = new Track();
@@ -32,18 +31,24 @@ public class TrackManagementEndpoint {
 
         ofy().save().entity(track).now();
 
-        TrackInfo info = new TrackInfo();
-        info.setId(track.getId());
-        info.setName(track.getName());
+        return track.getInfo();
 
-        UserInfo user = new UserInfo();
-        user.setId(userId);
+    }
 
-        info.setUser(user);
+    @ApiMethod(name = "getTracks", path = "users/{userId}/tracks", httpMethod = ApiMethod.HttpMethod.GET)
+    public List<TrackInfo> getTracks(@Named("userId") Long userId) {
 
-        info.setTrackLocations(new ArrayList<TrackLocationInfo>());
+        List<Track> records = ofy().load().type(Track.class).filter("userId", userId).list();
+        if (records == null || records.isEmpty()) {
+            return new ArrayList<TrackInfo>();
+        }
 
-        return info;
+        List<TrackInfo> infos = new ArrayList<TrackInfo>();
+        for (Track record : records) {
+            infos.add(record.getInfo());
+        }
+
+        return infos;
 
     }
 

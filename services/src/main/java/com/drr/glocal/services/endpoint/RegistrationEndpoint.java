@@ -28,7 +28,7 @@ public class RegistrationEndpoint {
 
     private static final Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
 
-    @ApiMethod(path = "register", httpMethod = ApiMethod.HttpMethod.POST)
+    @ApiMethod(name = "register", path = "register", httpMethod = ApiMethod.HttpMethod.POST)
     public void register(@Named("userId") Long userId, @Named("deviceId") Long deviceId, @Named("gcmRegistrationId") String gcmRegistrationId) {
 
         if (findDeviceByGcmRegistrationId(gcmRegistrationId) == null) {

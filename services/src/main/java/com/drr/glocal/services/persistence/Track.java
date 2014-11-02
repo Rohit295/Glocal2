@@ -1,5 +1,6 @@
 package com.drr.glocal.services.persistence;
 
+import com.drr.glocal.services.model.TrackInfo;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -44,4 +45,15 @@ public class Track {
     public void setName(String name) {
         this.name = name;
     }
+
+    public TrackInfo getInfo() {
+
+        TrackInfo info = new TrackInfo();
+        info.setId(getId());
+        info.setName(getName());
+
+        return info;
+
+    }
+
 }
