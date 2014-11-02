@@ -8,6 +8,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by rohitman on 10/31/2014.
@@ -16,7 +21,9 @@ public class TrackerHandler extends Handler {
     private GoogleMap mMap;
     Marker headOfThePath;
 
+    private List<LatLng> pointsOnPathTaken = new ArrayList<LatLng>(5);
     private int tempCounter = 0;
+    Polyline pathTraced;
 
     public TrackerHandler(GoogleMap map) {
         mMap = map;
@@ -35,12 +42,17 @@ public class TrackerHandler extends Handler {
                 currentPositionLatLng = new LatLng(currentPosition.getLatitude() + (double)(5*tempCounter)/10000,
                                             currentPosition.getLongitude() + (double)(5*tempCounter++)/10000);
 
+                //Now trace the path taken by the user. Draw the Polyline and set the Head Tracker
                 if (headOfThePath != null) {
                     headOfThePath.remove();
                 }
                 headOfThePath  = mMap.addMarker(new MarkerOptions().title("Start").
                         position(currentPositionLatLng));
 
+                pointsOnPathTaken.add(currentPositionLatLng);
+                if (pathTraced == null)
+                    pathTraced = mMap.addPolyline(new PolylineOptions().add(pointsOnPathTaken.get(0)));
+                pathTraced.setPoints(pointsOnPathTaken);
                 //pointsOnPathTaken.add(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
 
                 break;
