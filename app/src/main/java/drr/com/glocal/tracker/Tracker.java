@@ -1,5 +1,7 @@
 package drr.com.glocal.tracker;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -121,6 +123,8 @@ public class Tracker extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
+            getUserAccount();
+
             View rootView = inflater.inflate(R.layout.fragment_tracker2, container, false);
 
             // Initialize our lovely Google Map View & give it its initial settings. Logic is to
@@ -144,6 +148,10 @@ public class Tracker extends Activity {
             return rootView;
         }
 
+        private void getUserAccount() {
+            AccountManager manager = AccountManager.get(getActivity() );
+            Account[] listOfAccounts = manager.getAccounts();
+        }
         /**
          * Button Click Handlers: Handle the Start and Stop Buttons
          * @param view
@@ -194,6 +202,7 @@ public class Tracker extends Activity {
 
                 Message stopTracking = Message.obtain(null, LocationTrackerServiceHandler.STOP_TRACKING_LOCATION);
                 stopTracking.replyTo = mLocationUpdatesMessenger;
+                dataBundle.putString(TrackerLocationUpdatesHandler.TRACK_NAME, mTrackName);
                 stopTracking.setData(dataBundle);
                 try {
                     mLocationTrackerServiceMessenger.send(stopTracking);

@@ -132,9 +132,13 @@ public class TrackerLocationUpdatesHandler extends Handler {
             Log.i(this.getClass().getName(), "About to save this location into " +
                     mTrackName + " - " + locations[0].getLatitude() + "/" + locations[0].getLongitude());
 
+            // It is possible that we try to update a location, even before the Track for storing these
+            // locations has been created. Loop till we know the Track is created OR till 50 loops (50s)
+            // is finished
             // Todo is there a better way to wait for the TrackInfo to get updated from createnewtrack??
             TrackInfo trackInfo = mMapTrackToInfo.get(mTrackName);
-            for (int tryCounter = 0; ((trackInfo == null) && (tryCounter < 50)); tryCounter++) {
+            int tryCounter;
+            for (tryCounter = 0; ((trackInfo == null) && (tryCounter < 50)); tryCounter++) {
                 try {
                     Thread.sleep(1000L);
                     trackInfo = mMapTrackToInfo.get(mTrackName);
@@ -142,8 +146,13 @@ public class TrackerLocationUpdatesHandler extends Handler {
                     throw new RuntimeException(this.getClass().getName() + " - Sleep Interrupted");
                 }
             }
-            ApiClient.saveLocation(1L, trackInfo.getId(), 1L, 1L, locations[0].getLatitude(), locations[0].getLongitude());
-            return true;
+            if (tryCounter < 50) {
+                ApiClient.saveLocation(1L, trackInfo.getId(), 1L, 1L, locations[0].getLatitude(), locations[0].getLongitude());
+                return true;
+            } else {
+                throw new RuntimeException(this.getClass().getName() + " TrackInfo for " + mTrackName +
+                " still not updated");
+            }
         }
     }
 }
