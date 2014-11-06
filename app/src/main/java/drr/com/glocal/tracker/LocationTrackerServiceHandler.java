@@ -40,7 +40,6 @@ public class LocationTrackerServiceHandler extends Handler {
             }
         }
 
-
         // Either Create a new LocationTracker and start tracking or simply destroy it
         switch(msg.what) {
             case START_TRACKING_LOCATION:

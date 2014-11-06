@@ -162,12 +162,12 @@ public class Tracker extends Activity {
 
             // If the user has pressed the Start Button
             Intent locationTrackingIntent = new Intent(getActivity(), LocationTrackerService.class);
+            Bundle dataBundle = new Bundle();
             if (view.getId() == R.id.btn_start_tracking) {
 
                 // 1. Create a new TrackInfo to track all the location updates
                 mTrackName = TrackerLocationUpdatesHandler.getNewTrackName();
                 Message createTrackingInfo = Message.obtain(null, TrackerLocationUpdatesHandler.CREATE_TRACKINFO);
-                Bundle dataBundle = new Bundle();
                 dataBundle.putString(TrackerLocationUpdatesHandler.TRACK_NAME, mTrackName);
                 createTrackingInfo.setData(dataBundle);
 
@@ -194,6 +194,7 @@ public class Tracker extends Activity {
 
                 Message stopTracking = Message.obtain(null, LocationTrackerServiceHandler.STOP_TRACKING_LOCATION);
                 stopTracking.replyTo = mLocationUpdatesMessenger;
+                stopTracking.setData(dataBundle);
                 try {
                     mLocationTrackerServiceMessenger.send(stopTracking);
                 } catch(RemoteException re) {

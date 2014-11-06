@@ -59,9 +59,8 @@ public class TrackerLocationUpdatesHandler extends Handler {
                 break;
 
             case SAVE_LOCATION_UPDATE:
-                TrackInfo thisTrackInfo = mMapTrackToInfo.get(trackName);
                 Location locationToUpdate = (Location)msg.obj;
-                new TrackerLocationSaveLocationDataAsyncTask(thisTrackInfo);
+                new TrackerLocationSaveLocationDataAsyncTask(trackName).execute(locationToUpdate);
                 break;
 
             case CLOSE_TRACKINFO:
@@ -122,16 +121,29 @@ public class TrackerLocationUpdatesHandler extends Handler {
     }
 
     class TrackerLocationSaveLocationDataAsyncTask extends AsyncTask<Location, Integer, Boolean> {
-        private TrackInfo mTrackInfo;
+        private String mTrackName;
 
-        public TrackerLocationSaveLocationDataAsyncTask(TrackInfo trackInfo) {
-            mTrackInfo = trackInfo;
+        public TrackerLocationSaveLocationDataAsyncTask(String trackName) {
+            mTrackName = trackName;
         }
 
         @Override
         protected Boolean doInBackground(Location... locations) {
-            ApiClient.saveLocation(1L, mTrackInfo.getId(), 1L, 1L, locations[0].getLatitude(), locations[0].getLongitude());
-            return null;
+            Log.i(this.getClass().getName(), "About to save this location into " +
+                    mTrackName + " - " + locations[0].getLatitude() + "/" + locations[0].getLongitude());
+
+            // Todo is there a better way to wait for the TrackInfo to get updated from createnewtrack??
+            TrackInfo trackInfo = mMapTrackToInfo.get(mTrackName);
+            for (int tryCounter = 0; ((trackInfo == null) && (tryCounter < 50)); tryCounter++) {
+                try {
+                    Thread.sleep(1000L);
+                    trackInfo = mMapTrackToInfo.get(mTrackName);
+                } catch(InterruptedException ie) {
+                    throw new RuntimeException(this.getClass().getName() + " - Sleep Interrupted");
+                }
+            }
+            ApiClient.saveLocation(1L, trackInfo.getId(), 1L, 1L, locations[0].getLatitude(), locations[0].getLongitude());
+            return true;
         }
     }
 }
