@@ -8,6 +8,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.drr.glocal.services.services.model.TrackInfo;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
@@ -18,6 +19,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import drr.com.glocal.api.ApiClient;
 
 /**
  * Created by rohitman on 10/29/2014.
@@ -30,13 +33,16 @@ public class LocationTracker implements
 
     private Context mLocationTrackingContext;
     private Messenger mLocationUpdatesMessenger;
+    private String mTrackBeingCreated;
+    private Messenger mTrackerLocationUpdatesMessenger;
 
     private LocationClient mLocationClient;
 
     private final float INITIAL_ZOOM_LEVEL = 15f;
 
     // created some constants to handle the Message 'whats'
-    public static final int LOCATION_UPDATE = 106;
+    public static final int LOCATION_INITIAL_POSITION = 106;
+    public static final int LOCATION_UPDATE = 317;
 
     private List<LatLng> routeToTraverse;
 
@@ -49,14 +55,22 @@ public class LocationTracker implements
     public LocationTracker(Context locationTrackingContext, Messenger locationUpdatesMessenger) {
         Log.i(this.getClass().getName(), "LocationTracker Created");
         mLocationTrackingContext = locationTrackingContext;
+
+        // Create
+        //  1. Messenger to give location updates to Client &
+        //  2. Messenger to give the updates to the backend DB
         mLocationUpdatesMessenger = locationUpdatesMessenger;
+        mTrackerLocationUpdatesMessenger = new Messenger(TrackerLocationUpdatesHandler.getHandler());
 
         //TODO check that Google play services is available to the client
     }
 
     // TODO - Tracking needs to be done inside a Thread to ensure that this does not block the main UI
-    public void startTrackingLocation() {
+    public void startTrackingLocation(String trackName) {
         Log.i(this.getClass().getName(), ": about to start tracking location");
+        Log.i(this.getClass().getName(), ": Track Name is  - " + trackName);
+
+        mTrackBeingCreated = trackName;
         mLocationClient = new LocationClient(mLocationTrackingContext, this, this);
         mLocationClient.connect();
     }
@@ -88,9 +102,12 @@ public class LocationTracker implements
         }
 
         // Get the last location, which in this case will be the initial location from where reporting starts
-        Location mLocation = mLocationClient.getLastLocation();
-        Log.i(this.getClass().getName(), "Initial Position - Latitude: " + mLocation.getLatitude() + "; Longitude: " +
-                mLocation.getLongitude() + "; Altitude: " + mLocation.getAltitude());
+        Location location = mLocationClient.getLastLocation();
+        Log.i(this.getClass().getName(), "Initial Position - Latitude: " + location.getLatitude() + "; Longitude: " +
+                location.getLongitude() + "; Altitude: " + location.getAltitude());
+
+        // send the location back to the client
+        sendLocationUpdate(location, LocationTracker.LOCATION_INITIAL_POSITION);
 
         // Enable this drr.com.glocal.tracker to keep getting location updates
         // TODO: currently hard coded to high accuracy. How to handle coarse location updates?
@@ -99,6 +116,26 @@ public class LocationTracker implements
         request.setInterval(5000);
         request.setFastestInterval(1000);
         mLocationClient.requestLocationUpdates(request, this);
+    }
+
+    private void sendLocationUpdate(Location location, int typeOfUpdate) {
+        try {
+            // 1. send the location back to the client so that the UI is updated
+            Message messageToSend = Message.obtain(null, typeOfUpdate, 0, 0);
+            messageToSend.obj = location;
+            mLocationUpdatesMessenger.send(messageToSend);
+
+            // 2. send it to the DB and save as part of the current track
+            Message updateLocation = Message.obtain(null, TrackerLocationUpdatesHandler.SAVE_LOCATION_UPDATE);
+            Bundle dataBundle = new Bundle();
+            dataBundle.putString(TrackerLocationUpdatesHandler.TRACK_NAME, mTrackBeingCreated);
+            updateLocation.setData(dataBundle);
+            updateLocation.obj = location;
+            mTrackerLocationUpdatesMessenger.send(updateLocation);
+        } catch (RemoteException re) {
+            Log.e(this.getClass().getName(), re.getMessage());
+            throw new RuntimeException(re);
+        }
     }
 
     @Override
@@ -119,14 +156,7 @@ public class LocationTracker implements
         location.setLongitude(location.getLongitude() + (double)(5*tempCounter++)/10000);
 
         // send the location back to the client
-        try {
-            Message messageToSend = Message.obtain(null, LocationTracker.LOCATION_UPDATE, 0, 0);
-            messageToSend.obj = location;
-            mLocationUpdatesMessenger.send(messageToSend);
-        } catch (RemoteException re) {
-            Log.e(this.getClass().getName(), re.getMessage());
-            throw new RuntimeException(re);
-        }
+        sendLocationUpdate(location, LocationTracker.LOCATION_UPDATE);
 
         LatLng locationToAdd = new LatLng(location.getLatitude(), location.getLongitude());
         pointsOnPathTaken.add(locationToAdd);

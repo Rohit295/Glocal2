@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.drr.glocal.services.services.model.TrackInfo;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import drr.com.glocal.R;
+import drr.com.glocal.api.ApiClient;
 
 public class Tracker extends Activity {
 
@@ -89,6 +91,8 @@ public class Tracker extends Activity {
                     }
                 };
 
+        private Messenger mTrackerLocationUpdatesMessenger;
+        private String mTrackName;
 
         @Override
         public void onStart() {
@@ -146,24 +150,48 @@ public class Tracker extends Activity {
          */
         @Override
         public void onClick(View view) {
-
             // At this point create the incoming message Handler and set it up with the Map it is going
             // to manipulate
-            MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentByTag(MAP_FRAGMENT_ID);
-            mLocationUpdatesMessenger = new Messenger(new TrackerHandler(mapFragment.getMap()));
+            if (mLocationUpdatesMessenger == null) {
+                MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentByTag(MAP_FRAGMENT_ID);
+                mLocationUpdatesMessenger = new Messenger(new TrackerHandler(mapFragment.getMap()));
+            }
+
+            // also create the Message Handler that will take care of the real updates to backend
+            mTrackerLocationUpdatesMessenger = new Messenger(TrackerLocationUpdatesHandler.getHandler());
 
             // If the user has pressed the Start Button
             Intent locationTrackingIntent = new Intent(getActivity(), LocationTrackerService.class);
             if (view.getId() == R.id.btn_start_tracking) {
+
+                // 1. Create a new TrackInfo to track all the location updates
+                mTrackName = TrackerLocationUpdatesHandler.getNewTrackName();
+                Message createTrackingInfo = Message.obtain(null, TrackerLocationUpdatesHandler.CREATE_TRACKINFO);
+                Bundle dataBundle = new Bundle();
+                dataBundle.putString(TrackerLocationUpdatesHandler.TRACK_NAME, mTrackName);
+                createTrackingInfo.setData(dataBundle);
+
+                try {
+                    mTrackerLocationUpdatesMessenger.send(createTrackingInfo);
+                } catch(RemoteException re) {
+                    Log.e(this.getClass().getName() + ":Error @ creation of TrackInfo", re.getMessage());
+                    throw new RuntimeException(re);
+                }
+
+                // 2. Send a message to the LocationService to start and pass along the track name to
+                // use for the location updates
                 Message startTracking = Message.obtain(null, LocationTrackerServiceHandler.START_TRACKING_LOCATION);
                 startTracking.replyTo = mLocationUpdatesMessenger;
+                startTracking.setData(dataBundle);
                 try {
                     mLocationTrackerServiceMessenger.send(startTracking);
                 } catch(RemoteException re) {
                     Log.e(this.getClass().getName() + ":Error @ start of Tracking", re.getMessage());
                     throw new RuntimeException(re);
                 }
+
             } else if (view.getId() == R.id.btn_stop_tracking) {
+
                 Message stopTracking = Message.obtain(null, LocationTrackerServiceHandler.STOP_TRACKING_LOCATION);
                 stopTracking.replyTo = mLocationUpdatesMessenger;
                 try {
@@ -172,6 +200,7 @@ public class Tracker extends Activity {
                     Log.e(this.getClass().getName() + ":Error @ stop Tracking", re.getMessage());
                     throw new RuntimeException(re);
                 }
+
             }
         }
     }

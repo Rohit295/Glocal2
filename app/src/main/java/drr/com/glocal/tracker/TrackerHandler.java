@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class TrackerHandler extends Handler {
     private GoogleMap mMap;
-    Marker headOfThePath;
+    Marker mTailOfThePath, mHeadOfThePath;
 
     private List<LatLng> pointsOnPathTaken = new ArrayList<LatLng>(5);
     private int tempCounter = 0;
@@ -31,10 +31,25 @@ public class TrackerHandler extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
+        Location currentPosition;
+        LatLng currentPositionLatLng;
+
         switch (msg.what) {
+            case LocationTracker.LOCATION_INITIAL_POSITION:
+                currentPosition = (Location)msg.obj;
+                currentPositionLatLng =
+                        new LatLng(currentPosition.getLatitude(), currentPosition.getLongitude());
+
+                // Idetify the current position, at the start of tracking, which would be the last
+                // position on the trail. Make a marker and add to the path polyline for later plotting
+                mTailOfThePath = mMap.addMarker(new MarkerOptions().title("Start").
+                        position(currentPositionLatLng));
+                pointsOnPathTaken.add(currentPositionLatLng);
+
+                break;
             case LocationTracker.LOCATION_UPDATE:
-                Location currentPosition = (Location)msg.obj;
-                LatLng currentPositionLatLng =
+                currentPosition = (Location)msg.obj;
+                currentPositionLatLng =
                         new LatLng(currentPosition.getLatitude(), currentPosition.getLongitude());
 
                 // TODO - ensure this code below is commented
@@ -43,10 +58,10 @@ public class TrackerHandler extends Handler {
                                             currentPosition.getLongitude() + (double)(5*tempCounter++)/10000);
 
                 //Now trace the path taken by the user. Draw the Polyline and set the Head Tracker
-                if (headOfThePath != null) {
-                    headOfThePath.remove();
+                if (mHeadOfThePath != null) {
+                    mHeadOfThePath.remove();
                 }
-                headOfThePath  = mMap.addMarker(new MarkerOptions().title("Start").
+                mHeadOfThePath = mMap.addMarker(new MarkerOptions().title("Last").
                         position(currentPositionLatLng));
 
                 pointsOnPathTaken.add(currentPositionLatLng);
