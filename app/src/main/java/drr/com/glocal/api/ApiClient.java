@@ -5,6 +5,7 @@ import android.util.Log;
 import com.drr.glocal.services.services.Services;
 import com.drr.glocal.services.services.model.TrackInfo;
 import com.drr.glocal.services.services.model.TrackLocationInfo;
+import com.drr.glocal.services.services.model.UserInfo;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 
@@ -17,6 +18,37 @@ import java.util.List;
 public class ApiClient {
 
     private static String TAG = ApiClient.class.getName();
+
+    public UserInfo login(String emailId) {
+
+        try {
+
+            Services services =
+                    new Services(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null);
+
+            return services.login(emailId).execute();
+
+        } catch (Exception e) {
+            Log.e(TAG, "[" + e.getMessage() + "]", e);
+            return null;
+        }
+
+    }
+
+    public void register(Long userId, Long deviceId, String gcmRegistrationId) {
+
+        try {
+
+            Services services =
+                    new Services(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null);
+
+            services.register(deviceId, gcmRegistrationId, userId).execute();
+
+        } catch (Exception e) {
+            Log.e(TAG, "[" + e.getMessage() + "]", e);
+        }
+
+    }
 
     public static TrackInfo createNewTrack(Long userId, String name) {
 

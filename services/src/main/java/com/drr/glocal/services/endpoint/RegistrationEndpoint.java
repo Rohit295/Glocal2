@@ -1,11 +1,13 @@
 package com.drr.glocal.services.endpoint;
 
+import com.drr.glocal.services.model.UserInfo;
 import com.drr.glocal.services.persistence.Device;
 import com.drr.glocal.services.persistence.User;
 import com.drr.glocal.services.persistence.UserDevice;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.google.api.server.spi.response.BadRequestException;
 
 import java.util.logging.Logger;
 
@@ -28,8 +30,25 @@ public class RegistrationEndpoint {
 
     private static final Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
 
+    @ApiMethod(name = "login", path = "login", httpMethod = ApiMethod.HttpMethod.POST)
+    public UserInfo login(@Named("emailId") String emailId) {
+
+        User user = findUserByEmailId(emailId);
+        if (user == null) {
+            user = new User();
+            user.setEmailId(emailId);
+            ofy().save().entity(user).now();
+        }
+
+        return user.getInfo();
+
+    }
+
     @ApiMethod(name = "register", path = "register", httpMethod = ApiMethod.HttpMethod.POST)
-    public void register(@Named("userId") Long userId, @Named("deviceId") Long deviceId, @Named("gcmRegistrationId") String gcmRegistrationId) {
+    public void register(@Named("userId") Long userId,
+                         @Named("deviceId") Long deviceId,
+                         @Named("gcmRegistrationId") String gcmRegistrationId)
+            throws BadRequestException {
 
         if (findDeviceByGcmRegistrationId(gcmRegistrationId) == null) {
 
@@ -44,8 +63,7 @@ public class RegistrationEndpoint {
         // TODO this is not clear!!!
         User user = findUserByUserId(userId);
         if (user == null) {
-            user = new User();
-            ofy().save().entities(user).now();
+            throw new BadRequestException("User with [" + userId + "] does not exist");
         }
 
         UserDevice userDevice = findUserDeviceByUserId(userId);
@@ -55,12 +73,16 @@ public class RegistrationEndpoint {
         }
         userDevice.setDeviceId(deviceId);
 
-        ofy().save().entities(userDevice).now();
+        ofy().save().entity(userDevice).now();
 
     }
 
     private User findUserByUserId(Long userId) {
         return ofy().load().type(User.class).filter("userId", userId).first().now();
+    }
+
+    private User findUserByEmailId(String emailId) {
+        return ofy().load().type(User.class).filter("emailId", emailId).first().now();
     }
 
     private UserDevice findUserDeviceByUserId(Long userId) {

@@ -43,4 +43,6 @@ dependencies {
     compile 'javax.servlet:servlet-api:2.5'
     compile 'com.googlecode.objectify:objectify:4.0b3'
     compile 'com.ganyo:gcm-server:1.0.2'
+    compile 'org.springframework:spring-context:4.1.1.RELEASE'
+    compile 'org.springframework:spring-webmvc:4.1.1.RELEASE'
 }
