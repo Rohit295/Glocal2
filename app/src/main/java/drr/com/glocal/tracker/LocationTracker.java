@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import drr.com.glocal.api.ApiClient;
+import drr.com.glocal.helper.TrackerHelper;
 
 /**
  * Created by rohitman on 10/29/2014.
@@ -33,8 +34,10 @@ public class LocationTracker implements
 
     private Context mLocationTrackingContext;
     private Messenger mLocationUpdatesMessenger;
-    private String mTrackBeingCreated;
     private Messenger mTrackerLocationUpdatesMessenger;
+
+    private String mTrackBeingCreated;
+    private long mTrackBeingCreatedForUser;
 
     private LocationClient mLocationClient;
 
@@ -61,6 +64,9 @@ public class LocationTracker implements
         //  2. Messenger to give the updates to the backend DB
         mLocationUpdatesMessenger = locationUpdatesMessenger;
         mTrackerLocationUpdatesMessenger = new Messenger(TrackerLocationUpdatesHandler.getHandler());
+
+        // Get the User ID and set it for later use
+        mTrackBeingCreatedForUser = new TrackerHelper(mLocationTrackingContext).getUserID();
 
         //TODO check that Google play services is available to the client
     }
@@ -129,6 +135,7 @@ public class LocationTracker implements
             Message updateLocation = Message.obtain(null, TrackerLocationUpdatesHandler.SAVE_LOCATION_UPDATE);
             Bundle dataBundle = new Bundle();
             dataBundle.putString(TrackerLocationUpdatesHandler.TRACK_NAME, mTrackBeingCreated);
+            dataBundle.putLong(TrackerLocationUpdatesHandler.USER_ID, mTrackBeingCreatedForUser);
             updateLocation.setData(dataBundle);
             updateLocation.obj = location;
             mTrackerLocationUpdatesMessenger.send(updateLocation);

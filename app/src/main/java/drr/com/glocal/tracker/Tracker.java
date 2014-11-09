@@ -32,10 +32,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import drr.com.glocal.R;
 import drr.com.glocal.api.ApiClient;
+import drr.com.glocal.helper.TrackerHelper;
 
 public class Tracker extends Activity {
-
-    public static final String PREFERENCES_NAME = "TRACKER_PREFERENCE_NAME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,53 +46,6 @@ public class Tracker extends Activity {
                     .add(R.id.container, new TrackerFragment())
                     .commit();
         }
-
-        // Check to see if user has signed in before and if not store the User ID
-        checkUserRegisteration();
-    }
-
-
-    /**
-     * Login the Current User and set up for track management
-     */
-    private void checkUserRegisteration() {
-        // extract the Shared Preferences File for Tracker
-        SharedPreferences trackerPreferences = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-        AccountManager manager = AccountManager.get(this);
-        Account[] listOfAccounts = manager.getAccountsByType("com.google");
-        String googleAccount = listOfAccounts[0].name;
-
-        // Now check to see if this user already has an ID associated
-        long thisUserID = trackerPreferences.getLong(googleAccount, -500l);
-        if (thisUserID == -500l) {
-            // TODO: ApiClient login method needs to be static
-            UserInfo registeredUser = new ApiClient().login(listOfAccounts[0].name);
-            trackerPreferences.edit().putLong(googleAccount, registeredUser.getId());
-            trackerPreferences.edit().commit();
-        }
-    }
-
-    // TODO this method should live elsewhere
-
-    /**
-     * get the ID of the user who is currently running the app. Since this helper needs to be
-     * accessed from many places, it takes in the context to use
-     * @param contextToUse
-     * @return
-     */
-    public static long getUserID(Context contextToUse) {
-        SharedPreferences trackerPreferences = contextToUse.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-        AccountManager manager = AccountManager.get(contextToUse);
-        Account[] listOfAccounts = manager.getAccountsByType("com.google");
-        String googleAccount = listOfAccounts[0].name;
-
-        // Now check to see if this user already has an ID associated
-        long thisUserID = trackerPreferences.getLong(googleAccount, -500l);
-        if (thisUserID == -500l) {
-            Log.e("Tracker Activity - getUserID()", googleAccount + " is not logged into this Device");
-            throw new RuntimeException(googleAccount + " is not logged into this Device");
-        }
-        return thisUserID;
     }
 
     @Override
@@ -170,7 +122,7 @@ public class Tracker extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_tracker2, container, false);
+            View rootView = inflater.inflate(R.layout.f_tracker_2, container, false);
 
             // Initialize our lovely Google Map View & give it its initial settings. Logic is to
             // initialize a MapFragment and add it to our container layout
@@ -220,7 +172,7 @@ public class Tracker extends Activity {
                 Message createTrackingInfo = Message.obtain(null, TrackerLocationUpdatesHandler.CREATE_TRACKINFO);
                 dataBundle.putString(TrackerLocationUpdatesHandler.TRACK_NAME, mTrackName);
 
-                Long userID = Tracker.getUserID(getActivity());
+                Long userID = new TrackerHelper(getActivity()).getUserID();
                 dataBundle.putLong(TrackerLocationUpdatesHandler.USER_ID, userID);
                 createTrackingInfo.setData(dataBundle);
 
