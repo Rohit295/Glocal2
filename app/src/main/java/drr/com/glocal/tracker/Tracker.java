@@ -4,12 +4,12 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -23,11 +23,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.drr.glocal.services.services.model.TrackInfo;
+import com.drr.glocal.services.services.model.UserInfo;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -35,6 +34,8 @@ import drr.com.glocal.R;
 import drr.com.glocal.api.ApiClient;
 
 public class Tracker extends Activity {
+
+    public static final String PREFERENCES_NAME = "TRACKER_PREFERENCE_NAME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +47,54 @@ public class Tracker extends Activity {
                     .add(R.id.container, new TrackerFragment())
                     .commit();
         }
+
+        // Check to see if user has signed in before and if not store the User ID
+        checkUserRegisteration();
     }
 
+
+    /**
+     * Login the Current User and set up for track management
+     */
+    private void checkUserRegisteration() {
+        // extract the Shared Preferences File for Tracker
+        SharedPreferences trackerPreferences = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+        AccountManager manager = AccountManager.get(this);
+        Account[] listOfAccounts = manager.getAccountsByType("com.google");
+        String googleAccount = listOfAccounts[0].name;
+
+        // Now check to see if this user already has an ID associated
+        long thisUserID = trackerPreferences.getLong(googleAccount, -500l);
+        if (thisUserID == -500l) {
+            // TODO: ApiClient login method needs to be static
+            UserInfo registeredUser = new ApiClient().login(listOfAccounts[0].name);
+            trackerPreferences.edit().putLong(googleAccount, registeredUser.getId());
+            trackerPreferences.edit().commit();
+        }
+    }
+
+    // TODO this method should live elsewhere
+
+    /**
+     * get the ID of the user who is currently running the app. Since this helper needs to be
+     * accessed from many places, it takes in the context to use
+     * @param contextToUse
+     * @return
+     */
+    public static long getUserID(Context contextToUse) {
+        SharedPreferences trackerPreferences = contextToUse.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+        AccountManager manager = AccountManager.get(contextToUse);
+        Account[] listOfAccounts = manager.getAccountsByType("com.google");
+        String googleAccount = listOfAccounts[0].name;
+
+        // Now check to see if this user already has an ID associated
+        long thisUserID = trackerPreferences.getLong(googleAccount, -500l);
+        if (thisUserID == -500l) {
+            Log.e("Tracker Activity - getUserID()", googleAccount + " is not logged into this Device");
+            throw new RuntimeException(googleAccount + " is not logged into this Device");
+        }
+        return thisUserID;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,8 +170,6 @@ public class Tracker extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            getUserAccount();
-
             View rootView = inflater.inflate(R.layout.fragment_tracker2, container, false);
 
             // Initialize our lovely Google Map View & give it its initial settings. Logic is to
@@ -148,10 +193,6 @@ public class Tracker extends Activity {
             return rootView;
         }
 
-        private void getUserAccount() {
-            AccountManager manager = AccountManager.get(getActivity() );
-            Account[] listOfAccounts = manager.getAccounts();
-        }
         /**
          * Button Click Handlers: Handle the Start and Stop Buttons
          * @param view
@@ -173,10 +214,14 @@ public class Tracker extends Activity {
             Bundle dataBundle = new Bundle();
             if (view.getId() == R.id.btn_start_tracking) {
 
-                // 1. Create a new TrackInfo to track all the location updates
+                // 1. Create a new TrackInfo to track all the location updates. In that include the
+                // TrackName & UserID
                 mTrackName = TrackerLocationUpdatesHandler.getNewTrackName();
                 Message createTrackingInfo = Message.obtain(null, TrackerLocationUpdatesHandler.CREATE_TRACKINFO);
                 dataBundle.putString(TrackerLocationUpdatesHandler.TRACK_NAME, mTrackName);
+
+                Long userID = Tracker.getUserID(getActivity());
+                dataBundle.putLong(TrackerLocationUpdatesHandler.USER_ID, userID);
                 createTrackingInfo.setData(dataBundle);
 
                 try {

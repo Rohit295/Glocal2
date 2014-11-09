@@ -24,6 +24,7 @@ public class TrackerLocationUpdatesHandler extends Handler {
     public static final int CLOSE_TRACKINFO = 402;
 
     public static final String TRACK_NAME = "Track_Name";
+    public static final String USER_ID = "User_ID";
 
     private Map<String, TrackInfo> mMapTrackToInfo =  new HashMap<String, TrackInfo>();
 
@@ -41,26 +42,33 @@ public class TrackerLocationUpdatesHandler extends Handler {
     @Override
     public void handleMessage(Message msg) {
         Log.i(this.getClass().getName(), "About to Process a location update on the DB - " + whatIsBeingProcessed(msg.what));
-        // Extract the Name of the Track. All callers are expected to pass that as a Bundle in the
-        // message Object
+
+        // Extract the Name of the Track & the current User ID. All callers are expected to pass
+        // that as a Bundle in the message Object
         String trackName = "";
+        long userID = 0l;
         if (msg.getData() != null) {
             trackName = msg.getData().getString(TRACK_NAME);
+            userID = msg.getData().getLong(USER_ID);
             if (trackName == null) {
                 Log.e(this.getClass().getName(), "Track Name cannot be null");
                 throw new RuntimeException("TrackName cannot be null");
+            } else if (userID == 0) {
+                Log.e(this.getClass().getName(), "USerID cannot be 0");
+                throw new RuntimeException("UserID cannot be 0");
             }
         }
 
         switch(msg.what) {
 
             case CREATE_TRACKINFO:
-                new TrackerLocationCreateTrackInfoAsyncTask(this).execute(trackName);
+                new TrackerLocationCreateTrackInfoAsyncTask(this).execute(new TrackObject(trackName, userID));
                 break;
 
             case SAVE_LOCATION_UPDATE:
                 Location locationToUpdate = (Location)msg.obj;
-                new TrackerLocationSaveLocationDataAsyncTask(trackName).execute(locationToUpdate);
+                new TrackerLocationSaveLocationDataAsyncTask(new TrackObject(trackName, userID)).
+                        execute(locationToUpdate);
                 break;
 
             case CLOSE_TRACKINFO:
@@ -97,7 +105,18 @@ public class TrackerLocationUpdatesHandler extends Handler {
         return "Track_" + dateFormatter.format(Calendar.getInstance().getTime());
     }
 
-    class TrackerLocationCreateTrackInfoAsyncTask extends AsyncTask<String, Integer, TrackInfo> {
+    // TODO: this is a poor definition. Replace at the earliest
+    class TrackObject {
+        public String trackName;
+        public long userID;
+
+        public TrackObject(String trackName, long userID) {
+            this.trackName = trackName;
+            this.userID = userID;
+        }
+    }
+
+    class TrackerLocationCreateTrackInfoAsyncTask extends AsyncTask<TrackObject, Integer, TrackInfo> {
         private TrackerLocationUpdatesHandler mUpdatesHandler;
 
         public TrackerLocationCreateTrackInfoAsyncTask(TrackerLocationUpdatesHandler updatesHandler) {
@@ -105,11 +124,15 @@ public class TrackerLocationUpdatesHandler extends Handler {
         }
 
         private String mTrackName;
+        private long mUserID;
 
         @Override
-        protected TrackInfo doInBackground(String... trackNames) {
-            mTrackName = trackNames[0];
-            return ApiClient.createNewTrack(1L, mTrackName);
+        protected TrackInfo doInBackground(TrackObject... trackObjects) {
+
+            mTrackName = trackObjects[0].trackName;
+            mUserID = trackObjects[0].userID;
+
+            return ApiClient.createNewTrack(mUserID, mTrackName);
         }
 
         @Override
@@ -122,9 +145,11 @@ public class TrackerLocationUpdatesHandler extends Handler {
 
     class TrackerLocationSaveLocationDataAsyncTask extends AsyncTask<Location, Integer, Boolean> {
         private String mTrackName;
+        private long mUserID;
 
-        public TrackerLocationSaveLocationDataAsyncTask(String trackName) {
-            mTrackName = trackName;
+        public TrackerLocationSaveLocationDataAsyncTask(TrackObject trackObject) {
+            mTrackName = trackObject.trackName;
+            mUserID = trackObject.userID;
         }
 
         @Override
@@ -147,7 +172,8 @@ public class TrackerLocationUpdatesHandler extends Handler {
                 }
             }
             if (tryCounter < 50) {
-                ApiClient.saveLocation(1L, trackInfo.getId(), 1L, 1L, locations[0].getLatitude(), locations[0].getLongitude());
+                ApiClient.saveLocation(mUserID, trackInfo.getId(), 1L, 1L,
+                                    locations[0].getLatitude(), locations[0].getLongitude());
                 return true;
             } else {
                 throw new RuntimeException(this.getClass().getName() + " TrackInfo for " + mTrackName +
