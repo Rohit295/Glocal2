@@ -1,37 +1,27 @@
 package com.drr.glocal.services.endpoint;
 
-import com.drr.glocal.services.model.UserInfo;
+import com.drr.glocal.model.UserInfo;
 import com.drr.glocal.services.persistence.Device;
 import com.drr.glocal.services.persistence.User;
 import com.drr.glocal.services.persistence.UserDevice;
-import com.google.api.server.spi.config.Api;
-import com.google.api.server.spi.config.ApiMethod;
-import com.google.api.server.spi.config.ApiNamespace;
-import com.google.api.server.spi.response.BadRequestException;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.logging.Logger;
 
-import javax.inject.Named;
-
 import static com.drr.glocal.services.OfyService.ofy;
 
-/**
- * A registration endpoint class we are exposing for a device's GCM registration id on the backend
- * <p/>
- * For more information, see
- * https://developers.google.com/appengine/docs/java/endpoints/
- * <p/>
- * NOTE: This endpoint does not use any form of authorization or
- * authentication! If this app is deployed, anyone can access this endpoint! If
- * you'd like to add authentication, take a look at the documentation.
- */
-@Api(name = "services", version = "v1", namespace = @ApiNamespace(ownerDomain = "services.glocal.drr.com", ownerName = "services.glocal.drr.com", packagePath = ""))
+@RestController
+@RequestMapping("/services/v1/*")
 public class RegistrationEndpoint {
 
     private static final Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
 
-    @ApiMethod(name = "login", path = "login", httpMethod = ApiMethod.HttpMethod.POST)
-    public UserInfo login(@Named("emailId") String emailId) {
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public UserInfo login(@RequestParam("emailId") String emailId) {
 
         User user = findUserByEmailId(emailId);
         if (user == null) {
@@ -44,11 +34,10 @@ public class RegistrationEndpoint {
 
     }
 
-    @ApiMethod(name = "register", path = "register", httpMethod = ApiMethod.HttpMethod.POST)
-    public void register(@Named("userId") Long userId,
-                         @Named("deviceId") Long deviceId,
-                         @Named("gcmRegistrationId") String gcmRegistrationId)
-            throws BadRequestException {
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    public void register(@RequestParam("userId") Long userId,
+                         @RequestParam("deviceId") Long deviceId,
+                         @RequestParam("gcmRegistrationId") String gcmRegistrationId) {
 
         if (findDeviceByGcmRegistrationId(gcmRegistrationId) == null) {
 
@@ -63,7 +52,7 @@ public class RegistrationEndpoint {
         // TODO this is not clear!!!
         User user = findUserByUserId(userId);
         if (user == null) {
-            throw new BadRequestException("User with [" + userId + "] does not exist");
+            throw new RuntimeException("User with [" + userId + "] does not exist");
         }
 
         UserDevice userDevice = findUserDeviceByUserId(userId);

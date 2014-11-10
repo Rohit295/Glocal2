@@ -1,14 +1,12 @@
 package drr.com.glocal.startup;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.drr.glocal.services.services.model.UserInfo;
+import com.drr.glocal.model.UserInfo;
 
 import drr.com.glocal.api.ApiClient;
 import drr.com.glocal.helper.TrackerHelper;
@@ -30,7 +28,7 @@ public class StartUpAsyncRegisterUser extends AsyncTask<String, Integer, UserInf
 
         // TODO registeredUser Null check needs to behave differently. Currently set this way
         // because of a bug in login
-        registeredUser = new ApiClient().login(listOfAccountNames[0]);
+        registeredUser = ApiClient.getInstance().login(listOfAccountNames[0]);
         if (registeredUser == null) {
             registeredUser = new UserInfo();
             registeredUser.setId(455l);

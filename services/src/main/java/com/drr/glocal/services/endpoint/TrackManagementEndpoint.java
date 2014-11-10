@@ -1,29 +1,31 @@
 package com.drr.glocal.services.endpoint;
 
-import com.drr.glocal.services.model.TrackInfo;
+import com.drr.glocal.model.TrackInfo;
 import com.drr.glocal.services.persistence.Track;
-import com.google.api.server.spi.config.Api;
-import com.google.api.server.spi.config.ApiMethod;
-import com.google.api.server.spi.config.ApiNamespace;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.inject.Named;
 
 import static com.drr.glocal.services.OfyService.ofy;
 
 /**
  * Created by racastur on 31-10-2014.
  */
-@Api(name = "services", version = "v1", namespace = @ApiNamespace(ownerDomain = "services.glocal.drr.com", ownerName = "services.glocal.drr.com", packagePath = ""))
+@RestController
+@RequestMapping("/services/v1/*")
 public class TrackManagementEndpoint {
 
     private static final Logger log = Logger.getLogger(TrackManagementEndpoint.class.getName());
 
-    @ApiMethod(name = "createNewTrack", path = "users/{userId}/tracks", httpMethod = ApiMethod.HttpMethod.POST)
-    public TrackInfo createNewTrack(@Named("userId") Long userId, @Named("name") String name) {
+    @RequestMapping(value = "users/{userId}/tracks", method = RequestMethod.POST)
+    public TrackInfo createNewTrack(@PathVariable("userId") Long userId, @RequestParam("name") String name) {
 
         Track track = new Track();
         track.setName(name);
@@ -35,8 +37,8 @@ public class TrackManagementEndpoint {
 
     }
 
-    @ApiMethod(name = "getTracks", path = "users/{userId}/tracks", httpMethod = ApiMethod.HttpMethod.GET)
-    public List<TrackInfo> getTracks(@Named("userId") Long userId) {
+    @RequestMapping(value = "users/{userId}/tracks", method = RequestMethod.GET)
+    public List<TrackInfo> getTracks(@PathVariable("userId") Long userId) {
 
         List<Track> records = ofy().load().type(Track.class).filter("userId", userId).list();
         if (records == null || records.isEmpty()) {

@@ -14,8 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.drr.glocal.services.services.model.UserInfo;
-
 import drr.com.glocal.R;
 import drr.com.glocal.api.ApiClient;
 import drr.com.glocal.helper.TrackerHelper;
@@ -31,6 +29,8 @@ public class StartUp extends Activity {
                     .add(R.id.container, new StartUpFragment())
                     .commit();
         }
+
+        ApiClient.createInstance(this);
 
         // Check to see if user has signed in before and if not store the User ID
         new TrackerHelper(this).checkUserRegisteration();

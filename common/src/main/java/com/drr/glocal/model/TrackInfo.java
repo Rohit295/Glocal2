@@ -1,4 +1,4 @@
-package com.drr.glocal.services.model;
+package com.drr.glocal.model;
 
 import java.util.List;
 

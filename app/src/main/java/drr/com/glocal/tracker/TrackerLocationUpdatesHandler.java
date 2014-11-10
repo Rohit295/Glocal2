@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.drr.glocal.services.services.model.TrackInfo;
+import com.drr.glocal.model.TrackInfo;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -132,7 +132,7 @@ public class TrackerLocationUpdatesHandler extends Handler {
             mTrackName = trackObjects[0].trackName;
             mUserID = trackObjects[0].userID;
 
-            return ApiClient.createNewTrack(mUserID, mTrackName);
+            return ApiClient.getInstance().createNewTrack(mUserID, mTrackName);
         }
 
         @Override
@@ -172,7 +172,7 @@ public class TrackerLocationUpdatesHandler extends Handler {
                 }
             }
             if (tryCounter < 50) {
-                ApiClient.saveLocation(mUserID, trackInfo.getId(), 1L, 1L,
+                ApiClient.getInstance().saveLocation(mUserID, trackInfo.getId(), 1L, 1L,
                                     locations[0].getLatitude(), locations[0].getLongitude());
                 return true;
             } else {

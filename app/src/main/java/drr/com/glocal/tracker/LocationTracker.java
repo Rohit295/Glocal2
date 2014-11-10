@@ -8,7 +8,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.drr.glocal.services.services.model.TrackInfo;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;

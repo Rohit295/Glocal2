@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.drr.glocal.services.services.model.UserInfo;
-
 import drr.com.glocal.api.ApiClient;
 import drr.com.glocal.startup.StartUpAsyncRegisterUser;
 import drr.com.glocal.tracker.Tracker;

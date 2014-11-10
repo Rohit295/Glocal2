@@ -2,11 +2,11 @@ package drr.com.glocal.tracker;
 
 import android.app.Service;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import com.drr.glocal.services.services.model.TrackInfo;
+import com.drr.glocal.model.TrackInfo;
+
 
 /**
  * Created by rohitman on 10/29/2014.

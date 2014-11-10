@@ -1,4 +1,4 @@
-package com.drr.glocal.services.model;
+package com.drr.glocal.model;
 
 /**
  * Created by racastur on 01-11-2014.

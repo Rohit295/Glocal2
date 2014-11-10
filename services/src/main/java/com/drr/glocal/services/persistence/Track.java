@@ -1,6 +1,6 @@
 package com.drr.glocal.services.persistence;
 
-import com.drr.glocal.services.model.TrackInfo;
+import com.drr.glocal.model.TrackInfo;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;

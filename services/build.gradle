@@ -13,10 +13,6 @@ appengine {
     appcfg {
         oauth2 = true
     }
-    endpoints {
-        getClientLibsOnBuild = true
-        getDiscoveryDocsOnBuild = true
-    }
 }
 
 buildscript {
@@ -33,16 +29,22 @@ repositories {
     mavenCentral();
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
 dependencies {
-    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.6'
-    compile 'com.google.appengine:appengine-endpoints:1.9.6'
-    compile 'com.google.appengine:appengine-endpoints-deps:1.9.6'
+    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.15'
+
     compile 'javax.servlet:servlet-api:2.5'
+
     compile 'com.googlecode.objectify:objectify:4.0b3'
     compile 'com.ganyo:gcm-server:1.0.2'
+
     compile 'org.springframework:spring-context:4.1.1.RELEASE'
     compile 'org.springframework:spring-webmvc:4.1.1.RELEASE'
+
+    compile 'com.fasterxml.jackson.core:jackson-core:2.4.1'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.4.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.4.1'
+
+    compile 'com.fasterxml:jackson-module-json-org:0.9.1'
+
+    compile project(path: ':common')
 }
