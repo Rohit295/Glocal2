@@ -97,12 +97,14 @@ public class TrackerLocationUpdatesHandler extends Handler {
     }
 
     /**
-     * Use this Static Method to create the Name of every Track. Name is 'Track_formatted date'
+     * Use this Static Method to create the Name of every Track. Name is 'Track_formatted date'. Blanks
+     * screw up the HTTP exchange with the server and since it is not required, convert the " " to "_"
      * @return
      */
     public static String getNewTrackName() {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
-        return "Track_" + dateFormatter.format(Calendar.getInstance().getTime());
+        String formattedDate = "Track_" + dateFormatter.format(Calendar.getInstance().getTime());
+        return formattedDate.replace(" ", "_");
     }
 
     // TODO: this is a poor definition. Replace at the earliest

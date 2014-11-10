@@ -43,6 +43,7 @@
             android:text="Stop"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
+            android:enabled="false"
             android:background="@drawable/f_button_background"/>
 
     </RelativeLayout>
