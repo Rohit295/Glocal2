@@ -32,7 +32,7 @@ public class TrackLocationInfo {
     }
 
     public void setDeviceId(Long deviceId) {
-        this.deviceId = this.deviceId;
+        this.deviceId = deviceId;
     }
 
     public Long getTimestamp() {

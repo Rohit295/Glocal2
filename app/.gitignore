@@ -1,2 +1,6 @@
 /build
 *.iml
+.classpath
+.project
+.settings
+/bin/
