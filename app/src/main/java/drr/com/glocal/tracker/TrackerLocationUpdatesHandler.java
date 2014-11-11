@@ -130,6 +130,7 @@ public class TrackerLocationUpdatesHandler extends Handler {
 
         @Override
         protected TrackInfo doInBackground(TrackObject... trackObjects) {
+            Log.i(this.getClass().getName(), "About to create track - " + trackObjects[0].trackName);
 
             mTrackName = trackObjects[0].trackName;
             mUserID = trackObjects[0].userID;

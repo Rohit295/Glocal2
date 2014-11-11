@@ -194,6 +194,9 @@ public class Tracker extends Activity {
                     throw new RuntimeException(re);
                 }
 
+                // Now that start is processed, enable the Stop button and disable the Start button
+                ((Button) getView().findViewById(R.id.btn_stop_tracking)).setEnabled(true);
+                view.setEnabled(false);
             } else if (view.getId() == R.id.btn_stop_tracking) {
 
                 Message stopTracking = Message.obtain(null, LocationTrackerServiceHandler.STOP_TRACKING_LOCATION);
@@ -207,6 +210,9 @@ public class Tracker extends Activity {
                     throw new RuntimeException(re);
                 }
 
+                // Now that stop is processed, enable the Start button and disable the Stop button
+                ((Button) getView().findViewById(R.id.btn_start_tracking)).setEnabled(true);
+                view.setEnabled(false);
             }
         }
     }
