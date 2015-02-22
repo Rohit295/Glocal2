@@ -35,8 +35,8 @@ public class ApiClient {
     private static final String REGISTER_URL = API_BASE_URL + "/register?userId=%d&deviceId=%s&gcmRegistrationId=%s";
     private static final String CREATE_TRACK_URL = API_BASE_URL + "/users/%d/tracks?name=%s";
     private static final String GET_ALL_USER_TRACKS_URL = API_BASE_URL + "/users/%d/tracks";
-    private static final String SAVE_TRACK_LOCATION_URL = API_BASE_URL + "users/%d/tracks/%d/locations?deviceId=%s&timestamp=%d&latitude=%f&longitude=%f";
-    private static final String GET_TRACK_LOCATIONS = API_BASE_URL + "users/%d/tracks/%d/locations";
+    private static final String SAVE_TRACK_LOCATION_URL = API_BASE_URL + "/users/%d/tracks/%d/locations?deviceId=%s&timestamp=%d&latitude=%f&longitude=%f";
+    private static final String GET_TRACK_LOCATIONS = API_BASE_URL + "/users/%d/tracks/%d/locations";
 
     private Context ctx;
     private ObjectMapper mapper;
@@ -215,11 +215,11 @@ public class ApiClient {
 
             String url = String.format(SAVE_TRACK_LOCATION_URL, userId, trackId, deviceId, timestamp, latitude, longitude);
 
-            HttpUriRequest request = new HttpGet(url);
+            HttpUriRequest request = new HttpPost(url);
 
             HttpResponse response = client.execute(request);
-            if (response.getStatusLine().getStatusCode() != 200) {
-                logErrorAndThrowException("GET", url, response);
+            if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 204) {
+                logErrorAndThrowException("POST", url, response);
             }
 
         } catch (Exception e) {
