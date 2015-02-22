@@ -41,7 +41,7 @@ public class TrackerLocationUpdatesHandler extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        Log.i(this.getClass().getName(), "About to Process a location update on the DB - " + whatIsBeingProcessed(msg.what));
+        Log.i(this.getClass().getName(), "About to Process a location related update - " + whatIsBeingProcessed(msg.what));
 
         // Extract the Name of the Track & the current User ID. All callers are expected to pass
         // that as a Bundle in the message Object
@@ -73,6 +73,7 @@ public class TrackerLocationUpdatesHandler extends Handler {
 
             case CLOSE_TRACKINFO:
                 mMapTrackToInfo.remove(trackName);
+                // TODO include code to close the track on the server
                 break;
         }
 

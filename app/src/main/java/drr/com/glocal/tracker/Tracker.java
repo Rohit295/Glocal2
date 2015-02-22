@@ -2,6 +2,7 @@ package drr.com.glocal.tracker;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.ComponentName;
@@ -14,6 +15,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -80,13 +82,15 @@ public class Tracker extends Activity {
                 new ServiceConnection() {
                     @Override
                     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                        Log.i(this.getClass().getName(), "ServiceConnection Connected");
+                        Log.i(this.getClass().getName() + ": ServiceConnection.onServiceConnected()",
+                                "ServiceConnection Connected");
                         mLocationTrackerServiceMessenger = new Messenger(iBinder);
                     }
 
                     @Override
                     public void onServiceDisconnected(ComponentName componentName) {
-                        Log.i(this.getClass().getName(), "ServiceConnection DisConnected");
+                        Log.i(this.getClass().getName() + ": ServiceConnection.onServiceDisconnected()",
+                                "ServiceConnection DisConnected");
                         mLocationTrackerServiceMessenger = null;
                     }
                 };
@@ -98,20 +102,20 @@ public class Tracker extends Activity {
         public void onStart() {
             super.onStart();
 
-            Log.i(this.getClass().getName(), "OnStart called, about to Bind");
+            Log.i(this.getClass().getName()  + ":onStart()", "OnStart called, about to Bind");
             getActivity().bindService(new Intent(getActivity(), LocationTrackerService.class),
                                             mServiceConnection, BIND_AUTO_CREATE);
-            Log.i(this.getClass().getName(), "OnStart finished, Binding Initiated");
+            Log.i(this.getClass().getName()  + ":onStart()", "OnStart finished, Binding Initiated");
         }
 
         @Override
         public void onStop() {
             super.onStop();
 
-            Log.i(this.getClass().getName(), "OnStop Called, about to UnBind");
+            Log.i(this.getClass().getName() + ":onStop()", "OnStop called, about to UnBind");
             if (mLocationTrackerServiceMessenger != null)
                 getActivity().unbindService(mServiceConnection);
-            Log.i(this.getClass().getName(), "OnStop finished, UnBind finished");
+            Log.i(this.getClass().getName() + ":onStop()", "OnStop finished, UnBind finished");
         }
 
         // create a client side Messenger to receive messages from the Service
@@ -131,9 +135,13 @@ public class Tracker extends Activity {
             mapOptions.camera(cp).mapType(GoogleMap.MAP_TYPE_NORMAL);
             MapFragment mapFragment = MapFragment.newInstance(mapOptions);
 
+            // However just before adding, check the height of the screen and fill best height possible
+            DisplayMetrics  dm = new DisplayMetrics();
+            getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
             LinearLayout mapViewContainer = (LinearLayout)rootView.findViewById(R.id.f_cont_map_fragment);
             getFragmentManager().beginTransaction().add(mapViewContainer.getId(), mapFragment,
                     MAP_FRAGMENT_ID).commit();
+            mapViewContainer.getLayoutParams().height = dm.heightPixels - 450;
 
             // Add a Button listener to start & stop location tracking
             Button startButton = (Button) rootView.findViewById(R.id.btn_start_tracking);

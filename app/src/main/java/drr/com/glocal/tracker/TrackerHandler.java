@@ -23,7 +23,7 @@ public class TrackerHandler extends Handler {
 
     private List<LatLng> pointsOnPathTaken = new ArrayList<LatLng>(5);
     private int tempCounter = 0;
-    Polyline pathTraced;
+    Polyline mPathTraced;
 
     public TrackerHandler(GoogleMap map) {
         mMap = map;
@@ -40,7 +40,7 @@ public class TrackerHandler extends Handler {
                 currentPositionLatLng =
                         new LatLng(currentPosition.getLatitude(), currentPosition.getLongitude());
 
-                // Idetify the current position, at the start of tracking, which would be the last
+                // Identify the current position, at the start of tracking, which would be the last
                 // position on the trail. Make a marker and add to the path polyline for later plotting
                 mTailOfThePath = mMap.addMarker(new MarkerOptions().title("Start").
                         position(currentPositionLatLng));
@@ -54,8 +54,8 @@ public class TrackerHandler extends Handler {
 
                 // TODO - ensure this code below is commented
                 // Test code to simulate small amounts of movement
-                currentPositionLatLng = new LatLng(currentPosition.getLatitude() + (double)(5*tempCounter)/10000,
-                                            currentPosition.getLongitude() + (double)(5*tempCounter++)/10000);
+                //currentPositionLatLng = new LatLng(currentPosition.getLatitude() + (double)(5*tempCounter)/10000,
+                //                            currentPosition.getLongitude() + (double)(5*tempCounter++)/10000);
 
                 //Now trace the path taken by the user. Draw the Polyline and set the Head Tracker
                 if (mHeadOfThePath != null) {
@@ -65,10 +65,24 @@ public class TrackerHandler extends Handler {
                         position(currentPositionLatLng));
 
                 pointsOnPathTaken.add(currentPositionLatLng);
-                if (pathTraced == null)
-                    pathTraced = mMap.addPolyline(new PolylineOptions().add(pointsOnPathTaken.get(0)));
-                pathTraced.setPoints(pointsOnPathTaken);
+                if (mPathTraced == null)
+                    mPathTraced = mMap.addPolyline(new PolylineOptions().add(pointsOnPathTaken.get(0)));
+                mPathTraced.setPoints(pointsOnPathTaken);
                 //pointsOnPathTaken.add(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
+
+                break;
+            case LocationTracker.LOCATION_FINAL_POSITION:
+                // Delete the Polyline and reset the list of lat longs
+                if (mPathTraced != null) {
+                    mPathTraced.remove();
+                    mPathTraced = null;
+                }
+                pointsOnPathTaken = new ArrayList<LatLng>(5);
+
+                if (mHeadOfThePath != null)
+                    mHeadOfThePath.remove();
+                if (mTailOfThePath != null)
+                    mTailOfThePath.remove();
 
                 break;
         }

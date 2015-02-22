@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
+import drr.com.glocal.*;
 import drr.com.glocal.api.ApiClient;
 import drr.com.glocal.helper.TrackerHelper;
 
@@ -45,6 +46,7 @@ public class LocationTracker implements
     // created some constants to handle the Message 'whats'
     public static final int LOCATION_INITIAL_POSITION = 106;
     public static final int LOCATION_UPDATE = 317;
+    public static final int LOCATION_FINAL_POSITION = 174;
 
     private List<LatLng> routeToTraverse;
 
@@ -81,8 +83,8 @@ public class LocationTracker implements
     }
 
     public void stopTrackingLocation() {
-        Log.i(this.getClass().getName(), ": about to stop tracking location");
-
+        Log.i(this.getClass().getName() + ": stopTrackingLocation", ": about to stop tracking location");
+        endLocationUpdate();
         if (mLocationClient != null) {
             if (mLocationClient.isConnected()) {
                 mLocationClient.removeLocationUpdates(this);
@@ -124,6 +126,9 @@ public class LocationTracker implements
     }
 
     private void sendLocationUpdate(Location location, int typeOfUpdate) {
+        Log.i(this.getClass().getName() + ": sendLocationUpdate", ": about to send location update for"
+            + location.getLatitude() + "/" + location.getLongitude());
+
         try {
             // 1. send the location back to the client so that the UI is updated
             Message messageToSend = Message.obtain(null, typeOfUpdate, 0, 0);
@@ -142,6 +147,30 @@ public class LocationTracker implements
             Log.e(this.getClass().getName(), re.getMessage());
             throw new RuntimeException(re);
         }
+    }
+
+    private void endLocationUpdate() {
+        Log.i(this.getClass().getName() + ": endLocationUpdate", "End Location updates");
+
+        try {
+            // 1. send the location back to the client so that the UI is updated
+            Message messageToSend = Message.obtain(null,LocationTracker.LOCATION_FINAL_POSITION);
+            mLocationUpdatesMessenger.send(messageToSend);
+
+            // 2. send it to the DB and close the current track
+            Message updateLocation = Message.obtain(null, TrackerLocationUpdatesHandler.CLOSE_TRACKINFO);
+            Bundle dataBundle = new Bundle();
+            dataBundle.putString(TrackerLocationUpdatesHandler.TRACK_NAME, mTrackBeingCreated);
+            dataBundle.putLong(TrackerLocationUpdatesHandler.USER_ID, mTrackBeingCreatedForUser);
+            updateLocation.setData(dataBundle);
+            mTrackerLocationUpdatesMessenger.send(updateLocation);
+        } catch (RemoteException re) {
+            Log.e(this.getClass().getName(), re.getMessage());
+            throw new RuntimeException(re);
+        }
+
+        // TODO remove this reset. Required because we fake location updates
+        tempCounter = 0;
     }
 
     @Override
