@@ -21,7 +21,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.google.appengine:gradle-appengine-plugin:1.9.6'
+        classpath 'com.google.appengine:gradle-appengine-plugin:1.9.17'
     }
 }
 
@@ -30,7 +30,9 @@ repositories {
 }
 
 dependencies {
-    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.15'
+    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.17'
+
+    compile project(path: ':common')
 
     compile 'javax.servlet:servlet-api:2.5'
 
@@ -39,12 +41,12 @@ dependencies {
 
     compile 'org.springframework:spring-context:4.1.1.RELEASE'
     compile 'org.springframework:spring-webmvc:4.1.1.RELEASE'
+    compile 'org.springframework.security:spring-security-web:3.2.5.RELEASE'
+    compile 'org.springframework.security:spring-security-config:3.2.5.RELEASE'
 
     compile 'com.fasterxml.jackson.core:jackson-core:2.4.1'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.4.1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.1'
 
     compile 'com.fasterxml:jackson-module-json-org:0.9.1'
-
-    compile project(path: ':common')
 }

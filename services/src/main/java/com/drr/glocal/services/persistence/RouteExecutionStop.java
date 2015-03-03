@@ -6,7 +6,7 @@ package com.drr.glocal.services.persistence;
 public class RouteExecutionStop {
 
     private Long id;
-    private Long routeId;
+    private Long routeExecutionId;
     private Long routeStopId;
     private Long visitedTime;  // utc time
 

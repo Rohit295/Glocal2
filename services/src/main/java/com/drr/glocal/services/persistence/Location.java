@@ -6,7 +6,7 @@ package com.drr.glocal.services.persistence;
 public class Location {
 
     private Double latitude;
-    private Double Longitude;
+    private Double longitude;
     private String address;
 
 }

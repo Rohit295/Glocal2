@@ -6,6 +6,7 @@ package com.drr.glocal.services.persistence;
 public class Route {
 
     private Long id;
+    private Long organizationId;
     private String name;
     private String defaultStopPurpose;   // should be enum { Delivery, Pickup, Visit }
     private String executionStartTime;   // a one time route or a scheduled route
