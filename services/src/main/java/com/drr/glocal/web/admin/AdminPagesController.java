@@ -58,5 +58,9 @@ public class AdminPagesController {
         return new ModelAndView("admin/alltracks", "tracks", records);
 
     }
-
+    
+    @RequestMapping("/admin/console")
+    public ModelAndView getAdminConsole() {
+        return new ModelAndView("admin/console");
+    }
 }
