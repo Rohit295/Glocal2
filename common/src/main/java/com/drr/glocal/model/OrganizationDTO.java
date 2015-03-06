@@ -1,27 +1,17 @@
-package com.drr.glocal.services.persistence;
-
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
+package com.drr.glocal.model;
 
 /**
  * Created by racastur on 02-03-2015.
  */
-@PersistenceCapable
-public class Organization {
+public class OrganizationDTO {
 
-    @PrimaryKey
-    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Long id;
 
-    @Persistent
     private String name;
 
-    @Persistent
     private String orgType;
 
-    public Organization() {
+    public OrganizationDTO() {
 
     }
 

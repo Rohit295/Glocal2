@@ -1,7 +1,10 @@
 package com.drr.glocal.web.admin;
 
+import com.drr.glocal.model.RouteDTO;
+import com.drr.glocal.services.manager.RouteConfigurationManager;
 import com.drr.glocal.services.persistence.Track;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,6 +21,9 @@ import static com.drr.glocal.services.OfyService.ofy;
  */
 @Controller
 public class AdminPagesController {
+
+    @Autowired
+    private RouteConfigurationManager routeConfigurationManager;
 
     @RequestMapping("/login")
     public ModelAndView getLogin() {
@@ -58,9 +64,19 @@ public class AdminPagesController {
         return new ModelAndView("admin/alltracks", "tracks", records);
 
     }
-    
+
+    @RequestMapping("/admin/routes")
+    public ModelAndView getAllRoutes() {
+
+        List<RouteDTO> routes = routeConfigurationManager.getAllRoutes();
+
+        return new ModelAndView("admin/allroutes", "routes", routes);
+
+    }
+
     @RequestMapping("/admin/console")
     public ModelAndView getAdminConsole() {
         return new ModelAndView("admin/console");
     }
+
 }

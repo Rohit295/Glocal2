@@ -1,13 +1,9 @@
-package com.drr.glocal.services.persistence;
-
-import com.drr.glocal.model.LocationDTO;
-
-import java.io.Serializable;
+package com.drr.glocal.model;
 
 /**
  * Created by racastur on 12-11-2014.
  */
-public class Location implements Serializable {
+public class LocationDTO {
 
     private Double latitude;
 
@@ -15,14 +11,8 @@ public class Location implements Serializable {
 
     private String address;
 
-    public Location() {
+    public LocationDTO() {
 
-    }
-
-    public Location(LocationDTO dto) {
-        setLatitude(dto.getLatitude());
-        setLongitude(dto.getLongitude());
-        setAddress(dto.getAddress());
     }
 
     public Double getLatitude() {
@@ -47,17 +37,5 @@ public class Location implements Serializable {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public LocationDTO getDTO() {
-
-        LocationDTO dto = new LocationDTO();
-
-        dto.setLatitude(latitude);
-        dto.setLongitude(longitude);
-        dto.setAddress(address);
-
-        return dto;
-
     }
 }
