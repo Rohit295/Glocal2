@@ -41,8 +41,14 @@ public class LocationTrackingManagementEndpoint {
 
         ofy().save().entity(trackLocation).now();
 
-        // TODO send GCM notification only to interested parties
+        /**
+         * AT THIS POINT, UPDATE ALL INTERESTED PARTIES
+         * Do this in two ways 
+         * 	(1) all GCM enabled clients will get it through that
+         * 	(2) all web clients however will get it through a Channel update
+         */
 
+        // TODO 1. Send GCM notification only to interested parties
         Map<String, String> data = new HashMap<String, String>();
         data.put("userId", Long.toString(userId));
         data.put("trackId", Long.toString(trackId));
