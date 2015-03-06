@@ -3,8 +3,10 @@ package drr.com.glocal.tracker;
 import android.location.Location;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -13,6 +15,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import drr.com.glocal.R;
 
 /**
  * Created by rohitman on 10/31/2014.
@@ -39,18 +43,19 @@ public class TrackerHandler extends Handler {
                 currentPosition = (Location)msg.obj;
                 currentPositionLatLng =
                         new LatLng(currentPosition.getLatitude(), currentPosition.getLongitude());
+                pointsOnPathTaken.add(currentPositionLatLng);
 
                 // Identify the current position, at the start of tracking, which would be the last
                 // position on the trail. Make a marker and add to the path polyline for later plotting
                 mTailOfThePath = mMap.addMarker(new MarkerOptions().title("Start").
                         position(currentPositionLatLng));
-                pointsOnPathTaken.add(currentPositionLatLng);
 
                 break;
             case LocationTracker.LOCATION_UPDATE:
                 currentPosition = (Location)msg.obj;
                 currentPositionLatLng =
                         new LatLng(currentPosition.getLatitude(), currentPosition.getLongitude());
+                pointsOnPathTaken.add(currentPositionLatLng);
 
                 // TODO - ensure this code below is commented
                 // Test code to simulate small amounts of movement
@@ -62,9 +67,9 @@ public class TrackerHandler extends Handler {
                     mHeadOfThePath.remove();
                 }
                 mHeadOfThePath = mMap.addMarker(new MarkerOptions().title("Last").
-                        position(currentPositionLatLng));
+                        icon(BitmapDescriptorFactory.fromResource(R.drawable.black_car_topview)).
+                        position(currentPositionLatLng).rotation(getRotation()));
 
-                pointsOnPathTaken.add(currentPositionLatLng);
                 if (mPathTraced == null)
                     mPathTraced = mMap.addPolyline(new PolylineOptions().add(pointsOnPathTaken.get(0)));
                 mPathTraced.setPoints(pointsOnPathTaken);
@@ -86,5 +91,44 @@ public class TrackerHandler extends Handler {
 
                 break;
         }
+    }
+
+    /**
+     * Use this to generate the alignment of the Route Marker icon
+     * @return
+     */
+    private float getRotation() {
+        // if there are no points reported, rotation is 0
+        if (pointsOnPathTaken.size() < 2)
+            return 0.0f;
+
+        LatLng lp = pointsOnPathTaken.get(pointsOnPathTaken.size()-1);
+        LatLng lbp = pointsOnPathTaken.get(pointsOnPathTaken.size()-2);
+
+        // check any standard definition of how to get bearing, given 2 Lat/Long combinations
+        // ATAN2(COS(lat1)*SIN(lat2)-SIN(lat1)*COS(lat2)*COS(lon2-lon1), SIN(lon2-lon1)*COS(lat2))
+        // HOWEVER the implementation below did not give the correct result
+        /*
+        double rotation =
+            Math.atan2(Math.cos(lp.latitude)*Math.sin(lbp.latitude -
+                        Math.sin(lp.latitude)*Math.cos(lbp.latitude)*Math.cos(lbp.longitude-lp.longitude)),
+                    Math.sin(lbp.longitude-lp.longitude)*Math.cos(lbp.latitude));
+        rotation = (Math.toDegrees(rotation));// + 360) % 360;
+        Log.i(this.getClass().getName(), "Calculated Rotation when going from " +
+                lp.latitude + "/" + lp.longitude + " to " +
+                lbp.latitude + "/" + lbp.longitude + " is " + rotation);
+        */
+
+        // Get Distance, Initial Bearing and Final Bearing using Location static methods
+        float[] distanceParams = new float[3];
+        Location.distanceBetween(lp.latitude, lp.longitude, lbp.latitude, lbp.longitude, distanceParams);
+        Log.i(this.getClass().getName(), "Location.distanceBetween calculations " +
+                "with distance=" + distanceParams[0] +
+                "m; initial bearing=" + distanceParams[1] +
+                "; final bearing=" + distanceParams[2]  +
+                "; Camera Rotation=" + mMap.getCameraPosition().bearing);
+
+        float rotation = (distanceParams[2] - mMap.getCameraPosition().bearing)%360;
+        return (float)rotation;
     }
 }
