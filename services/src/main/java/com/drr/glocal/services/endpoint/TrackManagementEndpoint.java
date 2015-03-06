@@ -2,12 +2,15 @@ package com.drr.glocal.services.endpoint;
 
 import com.drr.glocal.model.TrackInfo;
 import com.drr.glocal.services.persistence.Track;
+import com.drr.glocal.services.persistence.TrackListener;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import sun.rmi.runtime.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +55,24 @@ public class TrackManagementEndpoint {
 
         return infos;
 
+    }
+
+    /**
+     * Every time a Web Client comes on and becomes interested in an instance of a Track, it will register
+     * itself to listen for updates on the Route
+     * @param trackId
+     * @param channelID
+     */
+    @RequestMapping(value = "users/tracks/{trackId}/{channelID}", method = RequestMethod.POST)
+    public void setTrackListener(@PathVariable("trackId") Long trackId, @PathVariable("channelID") String channelID) {
+    	log.log(Log.VERBOSE, getClass().getName() + ": " + "Add new Listener to track - " + trackId + 
+    			"; for channel - " + channelID);
+    	
+    	TrackListener listener = ofy().load().type(TrackListener.class).filter("trackId", trackId).first().now();
+    	if (listener != null) {
+    		listener.addChannelToUpdate(channelID);
+    	}
+    	
     }
 
 }

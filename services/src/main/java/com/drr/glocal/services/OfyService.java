@@ -2,6 +2,7 @@ package com.drr.glocal.services;
 
 import com.drr.glocal.services.persistence.Device;
 import com.drr.glocal.services.persistence.Track;
+import com.drr.glocal.services.persistence.TrackListener;
 import com.drr.glocal.services.persistence.TrackLocation;
 import com.drr.glocal.services.persistence.User;
 import com.drr.glocal.services.persistence.UserDevice;
@@ -21,6 +22,7 @@ public class OfyService {
         ObjectifyService.register(UserDevice.class);
         ObjectifyService.register(Track.class);
         ObjectifyService.register(TrackLocation.class);
+        ObjectifyService.register(TrackListener.class);
     }
 
     public static Objectify ofy() {

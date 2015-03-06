@@ -4,6 +4,9 @@ import com.drr.glocal.model.TrackLocationInfo;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.OnSave;
+
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 /**
  * Created by racastur on 31-10-2014.
@@ -88,6 +91,20 @@ public class TrackLocation {
 
         return info;
 
+    }
+
+    /**
+     * Every time a location is updated, check to see which all Track Listeners are interested in
+     * knowing about updates and send them the update
+     */
+    @OnSave
+    private void notifyListeners() {
+        TrackListener listeners = ofy().load().type(TrackListener.class).filter("trackID == ", trackId).first().now();
+        String[] channelsToUpdate = listeners.getChannelsToUpdate();
+
+        for (int i=0; i<channelsToUpdate.length; i++) {
+            // Loop through to update this location on each channel that is listening
+        }
     }
 
 }
