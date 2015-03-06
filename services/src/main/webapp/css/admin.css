@@ -1,0 +1,97 @@
+body {
+    padding: 100px
+}
+
+div.dataTables_length label {
+    width: 460px;
+    float: left;
+    text-align: left;
+}
+
+div.dataTables_length select {
+    width: 75px;
+}
+
+div.dataTables_filter label {
+    float: right;
+    width: 300px;
+}
+
+div.dataTables_filter input {
+    float: right;
+    width: 200px;
+    margin: 0 5px 0 5px;
+}
+
+div.dataTables_info {
+    padding-top: 8px;
+}
+
+div.dataTables_paginate {
+    float: right;
+    margin: 0;
+}
+
+.edit-container {
+    text-align: center;
+    width: 1000px;
+    background-color: #EEE;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+}
+
+.table {
+    margin-bottom: 10px;
+    padding-bottom: 0;
+}
+
+.table td {
+    border-top: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+.table th {
+    border-top: none;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table .form-entry-key {
+    font-weight: bold;
+    text-align: right;
+}
+
+.table .form-entry-value {
+    text-align: left;
+}
+
+.center-align {
+    text-align: center;
+}
+
+.left-align {
+    text-align: left;
+}
+
+.right-align {
+    text-align: right;
+}
+
+.section-white {
+    background: #ffffff;
+}
+
+.checkout-inner {
+    margin: 5px;
+    padding: 7px;
+    border-radius: 6px;
+}
+
+.rounded-modal {
+    border: 4px solid #7ada00;
+    background: #f6f6f4;
+    border-radius: 10px;
+}

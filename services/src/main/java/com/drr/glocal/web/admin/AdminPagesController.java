@@ -19,6 +19,21 @@ import static com.drr.glocal.services.OfyService.ofy;
 @Controller
 public class AdminPagesController {
 
+    @RequestMapping("/login")
+    public ModelAndView getLogin() {
+        return new ModelAndView("login");
+    }
+
+    @RequestMapping("/logout")
+    public ModelAndView getLogout() {
+        return new ModelAndView("logout");
+    }
+
+    @RequestMapping("/admin/index")
+    public ModelAndView getIndex() {
+        return new ModelAndView("admin/index");
+    }
+
     @RequestMapping("/admin/tracks")
     public ModelAndView getAllTracks() {
 

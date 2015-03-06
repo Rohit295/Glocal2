@@ -6,7 +6,7 @@ package com.drr.glocal.services.persistence;
 public class RouteExecutionLocation {
 
     private Long id;
-    private Long routeId;
+    private Long routeExecutionId;
     private Location location;
     private Long timestamp;    // utc time
     private Long deviceId;
