@@ -1,4 +1,4 @@
-package com.drr.glocal.web.tracker;
+package com.drr.glocal.web.user;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
