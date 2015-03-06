@@ -100,11 +100,12 @@ public class TrackLocation {
     @OnSave
     private void notifyListeners() {
         TrackListener listeners = ofy().load().type(TrackListener.class).filter("trackID == ", trackId).first().now();
-        String[] channelsToUpdate = listeners.getChannelsToUpdate();
+        java.util.List<String> channelsToUpdate = listeners.getChannelsToUpdate();
 
-        for (int i=0; i<channelsToUpdate.length; i++) {
-            // Loop through to update this location on each channel that is listening
-        }
+        // Loop through all the Channels and update that there is a new location
+        for (String channelToUpdate : channelsToUpdate) {
+			
+		} 
     }
 
 }
