@@ -132,7 +132,7 @@ public class Tracker extends Activity {
             GoogleMapOptions mapOptions = new GoogleMapOptions();
             CameraPosition cp = CameraPosition.builder().target(new LatLng(17.4321496, 78.3612867)).
                     zoom(INITIAL_ZOOM_LEVEL).build();
-            mapOptions.camera(cp).mapType(GoogleMap.MAP_TYPE_NORMAL);
+            mapOptions.camera(cp).mapType(GoogleMap.MAP_TYPE_NORMAL).tiltGesturesEnabled(false);
             MapFragment mapFragment = MapFragment.newInstance(mapOptions);
 
             // However just before adding, check the height of the screen and fill best height possible
