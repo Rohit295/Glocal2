@@ -8,6 +8,9 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 		<title>Insert title here</title>
 
+		<style type="text/css">
+			html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
+		</style>
 		<!-- 
 			Initialize the Google Maps JS control
 			TODO: replace the Key with the correct Key when ready
@@ -58,7 +61,9 @@
 		</script>
 		
 		
+		Rohit Mani
 		<div id="map-canvas"></div>
+		Rohini Ramdas
 		
 	</body>
 </html>
