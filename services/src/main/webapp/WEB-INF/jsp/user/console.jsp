@@ -66,7 +66,7 @@
 			</tr>
 			<tr>
 				<td>
-					<div id="map-canvas"></div>
+					<div id="map-canvas" class="map-canvas"></div>
 				</td>
 			</tr>
 		</table>
