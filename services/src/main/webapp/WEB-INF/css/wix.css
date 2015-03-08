@@ -1,0 +1,12 @@
+@CHARSET "ISO-8859-1";
+
+body {
+	
+}
+
+/* DIV for the main Map Canvas */
+div.map-canvas {
+	width: 90%;
+	height: 80%;
+	
+}
