@@ -8,6 +8,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 		<title>Insert title here</title>
 
+		<link rel="stylesheet" href="/css/wix.css">
 		<style type="text/css">
 			html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
 		</style>
@@ -60,10 +61,15 @@
 		    }
 		</script>
 		
-		
-		Rohit Mani
-		<div id="map-canvas"></div>
-		Rohini Ramdas
+		<table>
+			<tr>
+			</tr>
+			<tr>
+				<td>
+					<div id="map-canvas"></div>
+				</td>
+			</tr>
+		</table>
 		
 	</body>
 </html>
